@@ -1,0 +1,16 @@
+{
+  "mcpServers": {
+    "vercel": {
+      "command": "cmd",
+      "args": [
+        "/c",
+        "npx",
+        "-y",
+        "@mistertk/vercel-mcp@latest"
+      ],
+      "env": {
+        "VERCEL_API_TOKEN": "<your-vercel-api-token>"
+      }
+    }
+  }
+}

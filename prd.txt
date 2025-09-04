@@ -1,0 +1,163 @@
+Product Requirements Document (PRD)
+
+Project: ExamPrep Platform — Skeleton & Scaffolding Phase
+Version: 0.1
+Date: September 2025
+
+1. Purpose & Scope
+
+The goal of this phase is to create the technical skeleton and scaffolding for the ExamPrep platform, ensuring:
+
+Clear repo structure (GitHub-first).
+
+Integrated CI/CD pipelines.
+
+Foundational database schema (Supabase/Postgres).
+
+Role-based agent ownership (Frontend, Backend, QA, DevOps, Security, etc.).
+
+Task orchestration with auto-updated change logs for traceability.
+
+This PRD is scoped to infrastructure and structure only — not feature implementation.
+
+2. Tech Stack
+
+Frontend: Next.js (React + TailwindCSS + shadcn/ui).
+
+Backend/DB: Supabase (Postgres + Auth + Storage).
+
+Payments: Stripe (not yet integrated, placeholder keys in .env).
+
+Hosting/Deploy: Vercel (frontend), Supabase Cloud (backend).
+
+CI/CD: GitHub Actions (tests, migrations, deployments).
+
+Testing: Jest (unit/integration), Playwright (E2E), axe-core (accessibility).
+
+Agents: Claude sub-agents (Frontend, Backend, Storage, QA, DevOps, Security).
+
+Analytics: Google Analytics 4 (stub for later).
+
+Support: Zendesk (stub for later).
+
+3. Agent Ownership (Sub-Agent Responsibilities)
+Agent	Responsibilities (Skeleton Phase)	Validates Work Of
+Frontend Agent	Setup Next.js app, install Tailwind + shadcn/ui, scaffold pages/components.	QA Agent
+Backend Agent	Setup Supabase connection, define DB schema, migrations, auth boilerplate.	QA Agent
+Storage Agent	Create Supabase storage buckets (PBQ assets, blog media), RBAC access policies.	Security Agent
+QA Agent	Create test plan template, setup Jest/Playwright scaffolding, ensure CI hooks run.	N/A (final gate)
+DevOps Agent	Setup GitHub repo, GitHub Actions workflows, branch protections, env handling.	QA Agent
+Security Agent	Define RLS policies, enforce secrets handling, configure headers in Next.js.	QA Agent
+Task Orchestrator	Assigns tasks to agents, logs task progress, updates change log document.	N/A
+4. Repo & Versioning
+
+Repository: GitHub (examprep-skeleton)
+
+Branching:
+
+main → protected, production-ready.
+
+develop → staging, merged into main only via PR.
+
+feature/* → agent sub-task branches.
+
+CI/CD:
+
+Pre-merge: lint, typecheck, Jest, Playwright smoke tests.
+
+Post-merge: auto-deploy to Vercel (frontend) & Supabase migrations.
+
+5. Database Schema (Initial)
+
+Tables (scaffold only, no production data yet):
+
+users
+Column	Type	Notes
+id	uuid (PK)	Supabase Auth UID
+name	text	
+email	text (unique)	
+role	enum(user, sme, editor, admin)	RBAC base
+created_at	timestamptz	default now()
+subscriptions
+Column	Type	Notes
+id	uuid (PK)	
+user_id	uuid (FK → users.id)	
+plan	enum(30d, 60d, 90d, 180d)	
+status	enum(active, expired, canceled)	
+started_at	timestamptz	
+ends_at	timestamptz	
+change_logs
+
+(critical for your request)
+
+Column	Type	Notes
+id	serial (PK)	
+agent	text	which agent acted
+task	text	description of task
+status	enum(assigned, completed, validated)	
+timestamp	timestamptz	default now()
+6. Change Log Workflow
+
+Task Orchestrator updates the change_logs table every time:
+
+A task is assigned to an agent.
+
+A task is completed.
+
+Another agent validates the task.
+
+Change Log Doc (Markdown):
+
+Auto-updated from DB by orchestrator.
+
+Stored in repo under /docs/change_log.md.
+
+Mirrors DB rows with chronological entries.
+
+Example Entry:
+
+[2025-09-04] DevOps Agent — Setup GitHub Actions (assigned → completed → validated by QA Agent)
+
+7. Deliverables
+
+GitHub repo initialized with:
+
+Next.js app scaffold.
+
+Supabase connection scaffold.
+
+DB migrations (users, subscriptions, change_logs).
+
+GitHub Actions workflows.
+
+Prettier + ESLint config.
+
+Documentation:
+
+/docs/change_log.md (auto-updated).
+
+/docs/test_plan_template.md (QA starter).
+
+/docs/security_baseline.md (Security starter).
+
+8. Success Criteria
+
+Repo is fully bootstrapped (frontend, backend, CI/CD, schema).
+
+Every agent can start working in their own feature branch.
+
+Change log system live, ensuring auditability.
+
+Deployment pipeline works (dev → staging → prod).
+
+No secrets committed to repo; all stored in GitHub/Vercel/Supabase secrets managers.
+
+9. Out of Scope
+
+No exam questions, PBQs, or actual business logic yet.
+
+No payments or live Stripe integration.
+
+No production user onboarding.
+
+No analytics/events tracking.
