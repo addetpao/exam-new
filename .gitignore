@@ -57,3 +57,8 @@ logs
 
 # Stripe CLI
 stripe-cli/
+
+# Claude Code Settings
+.claude/settings.local.json
+.claude/state/
+.claude/cache/

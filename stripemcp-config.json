@@ -9,7 +9,7 @@
         "@stripe/mcp@latest"
       ],
       "env": {
-        "STRIPE_SECRET_KEY": "<your-stripe-secret-key>"
+        "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
       }
     }
   }

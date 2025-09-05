@@ -3,7 +3,7 @@
     "allow": [
       "Bash(dir:*)",
       "Bash(npx @supabase/mcp-server-supabase:*)",
-      "Bash(set SUPABASE_ACCESS_TOKEN=sbp_488a01e3237668140c8f71236b3f1d4f94920596)",
+      "Bash(set SUPABASE_ACCESS_TOKEN=$SUPABASE_ACCESS_TOKEN)",
       "Bash(npx:*)",
       "Bash(npm search:*)",
       "Read(/\\c\\Code/**)",
@@ -19,7 +19,9 @@
       "Bash(npm install)",
       "Bash(git commit:*)",
       "Bash(npm install:*)",
-      "Bash(git checkout:*)"
+      "Bash(git checkout:*)",
+      "Bash(npm run lint)",
+      "Bash(npm run test:*)"
     ],
     "deny": [],
     "ask": []
