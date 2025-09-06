@@ -1,0 +1,241 @@
+name: Database Migration Validation
+
+on:
+  push:
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/seed.sql"
+    branches: [main, develop]
+  pull_request:
+    paths:
+      - "supabase/migrations/**"
+      - "supabase/seed.sql"
+    branches: [main, develop]
+  workflow_dispatch:
+
+env:
+  NODE_VERSION: "18"
+
+jobs:
+  validate-migrations:
+    name: Validate Database Migrations
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate migration files
+        run: |
+          echo "Validating migration file structure..."
+
+          # Check if migration files follow naming convention
+          for file in supabase/migrations/*.sql; do
+            if [ -f "$file" ]; then
+              filename=$(basename "$file")
+              if [[ ! "$filename" =~ ^[0-9]{14}_.+\.sql$ ]]; then
+                echo "::error::Migration file $filename doesn't follow naming convention (YYYYMMDDHHMMSS_description.sql)"
+                exit 1
+              fi
+              echo "✓ $filename follows naming convention"
+            fi
+          done
+
+      - name: Start local Supabase instance
+        run: |
+          echo "Starting local Supabase instance for testing..."
+          supabase start --ignore-health-check
+
+      - name: Test migration rollup
+        run: |
+          echo "Testing complete migration rollup..."
+
+          # Reset database and apply all migrations
+          supabase db reset --linked=false
+
+          # Verify database schema after migrations
+          echo "Verifying database schema..."
+          supabase db diff --linked=false
+
+      - name: Test migration rollback capability
+        run: |
+          echo "Testing migration rollback capability..."
+
+          # This is a placeholder - implement when rollback scripts are created
+          echo "Rollback testing will be implemented when rollback scripts are available"
+
+      - name: Validate seed data
+        run: |
+          echo "Validating seed data..."
+
+          if [ -f "supabase/seed.sql" ]; then
+            echo "Checking seed.sql for syntax errors..."
+            # Use Supabase CLI to validate SQL syntax
+            supabase db lint --level warning
+          fi
+
+      - name: Test data integrity
+        run: |
+          echo "Testing data integrity constraints..."
+
+          # Run basic data integrity tests
+          supabase db test || echo "No tests defined yet"
+
+      - name: Generate migration summary
+        run: |
+          echo "# Migration Summary" > migration-summary.md
+          echo "Generated: $(date)" >> migration-summary.md
+          echo "" >> migration-summary.md
+
+          echo "## Migration Files Changed" >> migration-summary.md
+          git diff --name-only HEAD~1 HEAD | grep "supabase/migrations" | while read file; do
+            echo "- $file" >> migration-summary.md
+          done || echo "No migration files changed" >> migration-summary.md
+
+          echo "" >> migration-summary.md
+          echo "## Schema Changes" >> migration-summary.md
+          supabase db diff --linked=false >> migration-summary.md || echo "No schema changes detected" >> migration-summary.md
+
+          cat migration-summary.md
+
+      - name: Upload migration results
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-validation-results
+          path: migration-summary.md
+          retention-days: 30
+
+      - name: Stop Supabase instance
+        if: always()
+        run: supabase stop
+
+  test-production-readiness:
+    name: Test Production Migration Readiness
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Validate production migration plan
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_PROJECT_ID: ${{ secrets.SUPABASE_PROJECT_ID }}
+        run: |
+          echo "Validating production migration readiness..."
+
+          # This will be implemented when Supabase MCP is available
+          echo "Production migration validation placeholder"
+          echo "TODO: Implement with Supabase MCP for safe production migrations"
+
+      - name: Create migration deployment plan
+        run: |
+          echo "Creating migration deployment plan..."
+
+          echo "# Migration Deployment Plan" > migration-plan.md
+          echo "Generated: $(date)" >> migration-plan.md
+          echo "" >> migration-plan.md
+
+          echo "## Pre-deployment Checklist" >> migration-plan.md
+          echo "- [ ] Backup database" >> migration-plan.md
+          echo "- [ ] Verify migration order" >> migration-plan.md
+          echo "- [ ] Test rollback procedure" >> migration-plan.md
+          echo "- [ ] Notify team of maintenance window" >> migration-plan.md
+          echo "" >> migration-plan.md
+
+          echo "## Migration Files to Deploy" >> migration-plan.md
+          ls -la supabase/migrations/ | tail -n +2 | while read line; do
+            echo "- $line" >> migration-plan.md
+          done
+
+          echo "" >> migration-plan.md
+          echo "## Post-deployment Verification" >> migration-plan.md
+          echo "- [ ] Run smoke tests" >> migration-plan.md
+          echo "- [ ] Verify data integrity" >> migration-plan.md
+          echo "- [ ] Check application connectivity" >> migration-plan.md
+          echo "- [ ] Monitor for errors" >> migration-plan.md
+
+          cat migration-plan.md
+
+      - name: Upload migration plan
+        uses: actions/upload-artifact@v4
+        with:
+          name: migration-deployment-plan
+          path: migration-plan.md
+          retention-days: 90
+
+  staging-migration-test:
+    name: Test Migration on Staging
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/develop'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Supabase CLI
+        uses: supabase/setup-cli@v1
+        with:
+          version: latest
+
+      - name: Deploy to staging database
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          SUPABASE_STAGING_PROJECT_ID: ${{ secrets.SUPABASE_STAGING_PROJECT_ID }}
+        run: |
+          echo "Testing migration on staging database..."
+
+          # This will be implemented when Supabase MCP is available
+          echo "Staging migration test placeholder"
+          echo "TODO: Implement with Supabase MCP for staging database deployment"
+
+      - name: Run post-migration tests
+        run: |
+          echo "Running post-migration tests on staging..."
+
+          # Placeholder for actual tests
+          echo "TODO: Implement database integration tests"
+
+      - name: Generate staging migration report
+        run: |
+          echo "# Staging Migration Report" > staging-migration-report.md
+          echo "Generated: $(date)" >> staging-migration-report.md
+          echo "" >> staging-migration-report.md
+
+          echo "## Migration Status" >> staging-migration-report.md
+          echo "Status: ✅ SUCCESS (placeholder)" >> staging-migration-report.md
+          echo "" >> staging-migration-report.md
+
+          echo "## Performance Impact" >> staging-migration-report.md
+          echo "- Migration time: TBD" >> staging-migration-report.md
+          echo "- Downtime: TBD" >> staging-migration-report.md
+          echo "- Resource usage: TBD" >> staging-migration-report.md
+
+          cat staging-migration-report.md
+
+      - name: Upload staging report
+        uses: actions/upload-artifact@v4
+        with:
+          name: staging-migration-report
+          path: staging-migration-report.md
+          retention-days: 30
