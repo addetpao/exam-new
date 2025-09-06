@@ -17,13 +17,13 @@ export default function SignInPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [rememberMe, setRememberMe] = useState(false);
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/dashboard";
   const urlError = searchParams.get("error");
   const urlMessage = searchParams.get("message");
-  
+
   const supabase = createClient();
   const oauthProviders = getEnabledOAuthProviders();
 
@@ -41,10 +41,12 @@ export default function SignInPage() {
         return;
       }
 
-      const { data, error: authError } = await supabase.auth.signInWithPassword({
-        email: email.toLowerCase().trim(),
-        password,
-      });
+      const { data, error: authError } = await supabase.auth.signInWithPassword(
+        {
+          email: email.toLowerCase().trim(),
+          password,
+        }
+      );
 
       if (authError) {
         const mappedError = mapSupabaseAuthError(authError);
@@ -54,17 +56,29 @@ export default function SignInPage() {
       }
 
       if (data.user) {
-        // Track successful login
-        trackLogin("email");
-        
-        // Update last login timestamp
+        // Generate session version for single session enforcement
+        const sessionVersion = crypto.randomUUID();
+
+        // Update user with session version and last login
         await supabase
           .from("users")
-          .update({ 
+          .update({
+            session_version: sessionVersion,
             last_login_at: new Date().toISOString(),
             updated_at: new Date().toISOString(),
           })
           .eq("id", data.user.id);
+
+        // Update user metadata with session version
+        await supabase.auth.updateUser({
+          data: {
+            ...data.user.user_metadata,
+            session_version: sessionVersion,
+          },
+        });
+
+        // Track successful login
+        trackLogin("email");
 
         router.push(redirectTo);
       }
@@ -141,7 +155,10 @@ export default function SignInPage() {
         <form className="mt-8 space-y-6" onSubmit={handleEmailSignIn}>
           <div className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Email address
               </label>
               <input
@@ -157,9 +174,12 @@ export default function SignInPage() {
                 disabled={loading}
               />
             </div>
-            
+
             <div>
-              <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+              <label
+                htmlFor="password"
+                className="block text-sm font-medium text-gray-700"
+              >
                 Password
               </label>
               <input
@@ -188,7 +208,10 @@ export default function SignInPage() {
                 className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
                 disabled={loading}
               />
-              <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-900">
+              <label
+                htmlFor="remember-me"
+                className="ml-2 block text-sm text-gray-900"
+              >
                 Remember me
               </label>
             </div>
@@ -222,7 +245,9 @@ export default function SignInPage() {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-gray-50 text-gray-500">Or continue with</span>
+                  <span className="px-2 bg-gray-50 text-gray-500">
+                    Or continue with
+                  </span>
                 </div>
               </div>
             </div>
@@ -232,7 +257,11 @@ export default function SignInPage() {
                 <button
                   key={provider.name}
                   type="button"
-                  onClick={() => handleOAuthSignIn(provider.provider === "azure" ? "microsoft" : "google")}
+                  onClick={() =>
+                    handleOAuthSignIn(
+                      provider.provider === "azure" ? "microsoft" : "google"
+                    )
+                  }
                   disabled={loading}
                   className="w-full inline-flex justify-center py-2 px-4 border border-gray-300 rounded-md shadow-sm bg-white text-sm font-medium text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
