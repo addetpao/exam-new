@@ -1,0 +1,51 @@
+# Code Owners for ExamPrep Platform
+# This file defines who should review changes to specific parts of the codebase
+# More info: https://docs.github.com/en/github/creating-cloning-and-archiving-repositories/about-code-owners
+
+# Global ownership - all changes require review from repository owner
+* @addetpao
+
+# Frontend Components and UI
+/components/ @addetpao
+/app/ @addetpao
+/public/ @addetpao
+*.tsx @addetpao
+*.ts @addetpao
+
+# Backend and API Routes
+/app/api/ @addetpao
+/lib/ @addetpao
+
+# Database and Migrations
+/supabase/ @addetpao
+**/migrations/ @addetpao
+**/*.sql @addetpao
+
+# Configuration and Infrastructure
+/.github/ @addetpao
+/scripts/ @addetpao
+*.yml @addetpao
+*.yaml @addetpao
+*.config.js @addetpao
+*.config.ts @addetpao
+package.json @addetpao
+package-lock.json @addetpao
+
+# Security and Environment
+.env.example @addetpao
+**/security/ @addetpao
+.pre-commit-config.yaml @addetpao
+.secrets.baseline @addetpao
+
+# Documentation
+*.md @addetpao
+/docs/ @addetpao
+
+# Testing
+/tests/ @addetpao
+*.test.ts @addetpao
+*.test.tsx @addetpao
+*.spec.ts @addetpao
+
+# MCP Configuration
+*mcp*.json @addetpao
