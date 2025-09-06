@@ -13,7 +13,7 @@ export default function VerifyEmailPage() {
   const [resending, setResending] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
-  
+
   const supabase = createClient();
 
   const handleResendVerification = async () => {
@@ -71,11 +71,11 @@ export default function VerifyEmailPage() {
               />
             </svg>
           </div>
-          
+
           <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
             Verify your email address
           </h2>
-          
+
           <p className="mt-2 text-center text-sm text-gray-600">
             We sent a verification link to{" "}
             <span className="font-medium text-gray-900">
@@ -101,8 +101,9 @@ export default function VerifyEmailPage() {
             </div>
             <div className="ml-3">
               <p className="text-sm text-blue-700">
-                <strong>Please check your email inbox</strong> and click the verification 
-                link to access your account. Don&apos;t forget to check your spam folder!
+                <strong>Please check your email inbox</strong> and click the
+                verification link to access your account. Don&apos;t forget to
+                check your spam folder!
               </p>
             </div>
           </div>
@@ -143,7 +144,10 @@ export default function VerifyEmailPage() {
         <div className="mt-6 text-center text-xs text-gray-500">
           <p>
             Having trouble? Contact us at{" "}
-            <a href="mailto:support@examprep.com" className="text-blue-600 hover:text-blue-500">
+            <a
+              href="mailto:support@examprep.com"
+              className="text-blue-600 hover:text-blue-500"
+            >
               support@examprep.com
             </a>
           </p>
