@@ -1,5 +1,8 @@
 import { NextRequest } from "next/server";
-import { createSuccessResponse, createErrorResponse } from "@/lib/server/utils/api-response";
+import {
+  createSuccessResponse,
+  createErrorResponse,
+} from "@/lib/server/utils/api-response";
 import { STRIPE_PRICING } from "@/lib/stripe";
 
 /**
@@ -22,7 +25,9 @@ export async function GET(request: NextRequest) {
         "Detailed Explanations & References",
         "Progress Tracking & Analytics",
         `${config.examAttempts} Practice Exam Attempts`,
-        ...(config.selfAssessments > 0 ? [`${config.selfAssessments} Additional Self-Assessments`] : []),
+        ...(config.selfAssessments > 0
+          ? [`${config.selfAssessments} Additional Self-Assessments`]
+          : []),
         `${config.days}-Day Access`,
       ],
       popular: key === "90_DAY", // Mark 90-day as most popular
@@ -46,22 +51,41 @@ export async function GET(request: NextRequest) {
         contactEmail: "support@examprep.com",
       },
     });
-
   } catch (error) {
     console.error("Pricing fetch error:", error);
-    return createErrorResponse("INTERNAL_ERROR", "Failed to fetch pricing", null, 500);
+    return createErrorResponse(
+      "INTERNAL_ERROR",
+      "Failed to fetch pricing",
+      null,
+      500
+    );
   }
 }
 
 // Only allow GET requests
 export async function POST() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "POST method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "POST method not allowed",
+    null,
+    405
+  );
 }
 
 export async function PUT() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "PUT method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "PUT method not allowed",
+    null,
+    405
+  );
 }
 
 export async function DELETE() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "DELETE method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "DELETE method not allowed",
+    null,
+    405
+  );
 }
