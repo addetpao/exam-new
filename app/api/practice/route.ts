@@ -1,6 +1,14 @@
 import { NextRequest } from "next/server";
-import { createSuccessResponse, createErrorResponse, handleAPIError, validateMethod } from "@/lib/server/utils/api-response";
-import { getAuthenticatedUser, createSupabaseAdmin } from "@/lib/server/db/supabase";
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  handleAPIError,
+  validateMethod,
+} from "@/lib/server/utils/api-response";
+import {
+  getAuthenticatedUser,
+  createSupabaseAdmin,
+} from "@/lib/server/db/supabase";
 import { PracticeSessionCreateSchema } from "@/lib/server/validation/schemas";
 import { ga4Analytics } from "@/lib/server/analytics/ga4";
 
@@ -16,7 +24,7 @@ export async function POST(request: NextRequest) {
 
     // Authenticate user
     const user = await getAuthenticatedUser();
-    
+
     // Parse and validate request body
     const body = await request.json();
     const validatedData = PracticeSessionCreateSchema.parse(body);
@@ -31,9 +39,12 @@ export async function POST(request: NextRequest) {
       .single();
 
     // For free users, limit to 50 questions per session
-    if (userProfile?.subscription_status === "free" && validatedData.question_count > 50) {
+    if (
+      userProfile?.subscription_status === "free" &&
+      validatedData.question_count > 50
+    ) {
       return createErrorResponse(
-        "SUBSCRIPTION_REQUIRED", 
+        "SUBSCRIPTION_REQUIRED",
         "Premium subscription required for more than 50 questions",
         null,
         402
@@ -56,13 +67,19 @@ export async function POST(request: NextRequest) {
 
     if (sessionError) {
       console.error("Failed to create practice session:", sessionError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to create practice session", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to create practice session",
+        null,
+        500
+      );
     }
 
     // Get adaptive question selection based on user's weak areas
     let questionQuery = supabase
       .from("questions")
-      .select(`
+      .select(
+        `
         id,
         question_text,
         question_type,
@@ -74,7 +91,8 @@ export async function POST(request: NextRequest) {
           choice_text,
           is_correct
         )
-      `)
+      `
+      )
       .eq("status", "published");
 
     // Apply domain filter if specified
@@ -84,7 +102,10 @@ export async function POST(request: NextRequest) {
 
     // Apply objective filters if specified
     if (validatedData.objective_ids && validatedData.objective_ids.length > 0) {
-      questionQuery = questionQuery.in("objective_id", validatedData.objective_ids);
+      questionQuery = questionQuery.in(
+        "objective_id",
+        validatedData.objective_ids
+      );
     }
 
     // Apply difficulty filter if specified
@@ -93,31 +114,43 @@ export async function POST(request: NextRequest) {
     }
 
     // Get questions with adaptive selection (prioritize weak areas)
-    const { data: questions, error: questionsError } = await questionQuery
-      .limit(validatedData.question_count);
+    const { data: questions, error: questionsError } =
+      await questionQuery.limit(validatedData.question_count);
 
     if (questionsError) {
       console.error("Failed to fetch questions:", questionsError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to fetch questions", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to fetch questions",
+        null,
+        500
+      );
     }
 
     if (!questions || questions.length === 0) {
-      return createErrorResponse("NOT_FOUND", "No questions found matching criteria", null, 404);
+      return createErrorResponse(
+        "NOT_FOUND",
+        "No questions found matching criteria",
+        null,
+        404
+      );
     }
 
     // Shuffle questions for random order
     const shuffledQuestions = questions.sort(() => Math.random() - 0.5);
 
     // Track analytics event
-    await ga4Analytics.trackEvent(user.id, [{
-      name: "practice_session_started",
-      parameters: {
-        session_id: session.id,
-        domain_id: validatedData.domain_id || "all",
-        question_count: validatedData.question_count,
-        difficulty: validatedData.difficulty || "mixed",
-      }
-    }]);
+    await ga4Analytics.trackEvent(user.id, [
+      {
+        name: "practice_session_started",
+        parameters: {
+          session_id: session.id,
+          domain_id: validatedData.domain_id || "all",
+          question_count: validatedData.question_count,
+          difficulty: validatedData.difficulty || "mixed",
+        },
+      },
+    ]);
 
     const responseData = {
       session: {
@@ -127,7 +160,7 @@ export async function POST(request: NextRequest) {
         domain_id: session.domain_id,
         status: session.status,
       },
-      questions: shuffledQuestions.map(question => ({
+      questions: shuffledQuestions.map((question) => ({
         id: question.id,
         question_text: question.question_text,
         question_type: question.question_type,
@@ -135,7 +168,7 @@ export async function POST(request: NextRequest) {
         objective_id: question.objective_id,
         difficulty: question.difficulty,
         choices: question.choices
-          ? question.choices.map(choice => ({
+          ? question.choices.map((choice) => ({
               id: choice.id,
               choice_text: choice.choice_text,
               // Never expose correct answers in practice mode initially
@@ -145,7 +178,6 @@ export async function POST(request: NextRequest) {
     };
 
     return createSuccessResponse(responseData, 201);
-
   } catch (error) {
     return handleAPIError(error);
   }
@@ -163,7 +195,7 @@ export async function GET(request: NextRequest) {
 
     // Authenticate user
     const user = await getAuthenticatedUser();
-    
+
     // Parse query parameters
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
@@ -174,7 +206,8 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from("practice_sessions")
-      .select(`
+      .select(
+        `
         id,
         domain_id,
         question_count,
@@ -187,7 +220,8 @@ export async function GET(request: NextRequest) {
           name,
           code
         )
-      `)
+      `
+      )
       .eq("user_id", user.id)
       .order("started_at", { ascending: false });
 
@@ -195,12 +229,19 @@ export async function GET(request: NextRequest) {
       query = query.eq("status", status);
     }
 
-    const { data: sessions, error: sessionsError } = await query
-      .range(offset, offset + limit - 1);
+    const { data: sessions, error: sessionsError } = await query.range(
+      offset,
+      offset + limit - 1
+    );
 
     if (sessionsError) {
       console.error("Failed to fetch practice sessions:", sessionsError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to fetch practice sessions", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to fetch practice sessions",
+        null,
+        500
+      );
     }
 
     const responseData = {
@@ -213,7 +254,6 @@ export async function GET(request: NextRequest) {
     };
 
     return createSuccessResponse(responseData);
-
   } catch (error) {
     return handleAPIError(error);
   }
