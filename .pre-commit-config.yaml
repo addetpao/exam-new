@@ -1,0 +1,131 @@
+# Pre-commit hooks configuration for ExamPrep Platform
+# See https://pre-commit.com for more information
+
+repos:
+  # General file checks
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+      - id: trailing-whitespace
+        exclude: '\.md$'
+      - id: end-of-file-fixer
+      - id: check-yaml
+      - id: check-json
+        exclude: '\.vscode/.*\.json$'
+      - id: check-toml
+      - id: check-added-large-files
+        args: ["--maxkb=1000"]
+      - id: check-case-conflict
+      - id: check-merge-conflict
+      - id: detect-private-key
+      - id: check-symlinks
+      - id: destroyed-symlinks
+
+  # JavaScript/TypeScript specific hooks
+  - repo: local
+    hooks:
+      # ESLint
+      - id: eslint
+        name: ESLint
+        entry: npx eslint
+        language: node
+        files: \.(js|jsx|ts|tsx)$
+        args: [--fix, --max-warnings=0]
+        additional_dependencies:
+          - eslint@^8.47.0
+          - eslint-config-next@14.2.5
+          - "@typescript-eslint/eslint-plugin@^6.21.0"
+          - "@typescript-eslint/parser@^6.21.0"
+
+      # Prettier
+      - id: prettier
+        name: Prettier
+        entry: npx prettier
+        language: node
+        files: \.(js|jsx|ts|tsx|json|css|scss|md|yaml|yml)$
+        args: [--write]
+        additional_dependencies:
+          - prettier@^3.0.2
+
+      # TypeScript type checking
+      - id: typescript-check
+        name: TypeScript Check
+        entry: npx tsc
+        language: node
+        files: \.(ts|tsx)$
+        args: [--noEmit]
+        additional_dependencies:
+          - typescript@^5.1.6
+
+      # Package.json validation
+      - id: package-json-lint
+        name: Package.json Lint
+        entry: bash -c
+        language: system
+        files: package\.json$
+        args:
+          - |
+            if command -v jq > /dev/null; then
+              jq empty package.json || (echo "Invalid package.json" && exit 1)
+            fi
+
+      # Environment file validation
+      - id: env-example-sync
+        name: Environment Example Sync Check
+        entry: bash -c
+        language: system
+        files: \.env\.example$
+        args:
+          - |
+            echo "Checking .env.example format..."
+            if [ -f ".env.example" ]; then
+              # Check for potential secrets
+              if grep -E "(secret|key|password|token)" .env.example | grep -v "your_" | grep -v "example_"; then
+                echo "WARNING: .env.example may contain actual secrets"
+                exit 1
+              fi
+            fi
+
+  # Security scanning
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline"]
+        exclude: 'package-lock\.json|\.secrets\.baseline'
+
+  # Dependency security
+  - repo: local
+    hooks:
+      - id: npm-audit
+        name: NPM Security Audit
+        entry: npm audit
+        language: system
+        args: [--audit-level=moderate]
+        pass_filenames: false
+        files: package-lock\.json
+
+  # Git hooks
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v3.12.0
+    hooks:
+      - id: commitizen
+      - id: commitizen-branch
+        stages: [push]
+
+# Configuration
+default_install_hook_types: [pre-commit, pre-push, commit-msg]
+default_stages: [pre-commit]
+
+# CI configuration
+ci:
+  autofix_commit_msg: |
+    [pre-commit.ci] auto fixes from pre-commit.com hooks
+
+    for more information, see https://pre-commit.ci
+  autofix_prs: true
+  autoupdate_branch: ""
+  autoupdate_commit_msg: "[pre-commit.ci] pre-commit autoupdate"
+  autoupdate_schedule: weekly
+  skip: []
+  submodules: false
