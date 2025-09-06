@@ -12,11 +12,13 @@ import { StorageBucket, MimeType } from "@/lib/server/storage/types";
 const uploadSchema = z.object({
   bucket: z.enum(["pbq-assets", "content-media", "temp-uploads"]),
   path: z.string().min(1, "Path is required"),
-  metadata: z.object({
-    cacheControl: z.string().optional(),
-    contentType: z.string().optional(),
-    upsert: z.boolean().optional(),
-  }).optional(),
+  metadata: z
+    .object({
+      cacheControl: z.string().optional(),
+      contentType: z.string().optional(),
+      upsert: z.boolean().optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -31,28 +33,22 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check user role
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("role")
+      .select("app_role")
       .eq("id", user.id)
       .single();
 
     if (userError || !userData) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     // Only content editors and admins can upload
-    if (!["content_editor", "admin"].includes(userData.role)) {
+    if (!["content_editor", "admin"].includes((userData as any).app_role)) {
       return NextResponse.json(
         { error: "Insufficient permissions" },
         { status: 403 }
@@ -67,10 +63,7 @@ export async function POST(request: NextRequest) {
     const metadataStr = formData.get("metadata") as string;
 
     if (!file) {
-      return NextResponse.json(
-        { error: "No file provided" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
     // Validate request parameters
@@ -82,9 +75,9 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { 
+        {
           error: "Invalid request parameters",
-          details: validation.error.errors
+          details: validation.error.issues,
         },
         { status: 400 }
       );
@@ -93,7 +86,10 @@ export async function POST(request: NextRequest) {
     const { bucket: validBucket, path: validPath, metadata } = validation.data;
 
     // Additional permission checks for specific buckets
-    if (validBucket === "pbq-assets" && userData.role !== "admin") {
+    if (
+      validBucket === "pbq-assets" &&
+      (userData as any).app_role !== "admin"
+    ) {
       // Only admins can upload to PBQ assets in production
       if (validPath.includes("/published/")) {
         return NextResponse.json(
@@ -130,10 +126,9 @@ export async function POST(request: NextRequest) {
       success: true,
       asset: assetMetadata,
     });
-
   } catch (error) {
     console.error("Storage upload error:", error);
-    
+
     if (error instanceof Error && "statusCode" in error) {
       return NextResponse.json(
         { error: error.message },
