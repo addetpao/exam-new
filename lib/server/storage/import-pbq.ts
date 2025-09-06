@@ -56,8 +56,12 @@ export async function importPBQPackage(
   } = {}
 ): Promise<ImportResult> {
   const { questionId, version, files } = packageData;
-  const { validateOnly = false, allowOverwrite = false, publishAfterImport = false } = options;
-  
+  const {
+    validateOnly = false,
+    allowOverwrite = false,
+    publishAfterImport = false,
+  } = options;
+
   const result: ImportResult = {
     success: false,
     questionId,
@@ -87,20 +91,31 @@ export async function importPBQPackage(
     if (!allowOverwrite) {
       const existingCheck = await checkExistingAssets(questionId, version);
       if (existingCheck.hasExisting) {
-        result.errors.push(`Assets already exist for question ${questionId} version ${version}`);
-        result.warnings.push("Use allowOverwrite: true to replace existing assets");
+        result.errors.push(
+          `Assets already exist for question ${questionId} version ${version}`
+        );
+        result.warnings.push(
+          "Use allowOverwrite: true to replace existing assets"
+        );
         return result;
       }
     }
 
     // Step 3: Validate individual files
     for (const file of files) {
-      const validation = await validateAsset(file.content, file.mimeType as any);
+      const validation = await validateAsset(
+        file.content,
+        file.mimeType as any
+      );
       if (!validation.valid) {
-        result.errors.push(`File ${file.name}: ${validation.errors.join(", ")}`);
+        result.errors.push(
+          `File ${file.name}: ${validation.errors.join(", ")}`
+        );
       }
       if (validation.warnings.length > 0) {
-        result.warnings.push(`File ${file.name}: ${validation.warnings.join(", ")}`);
+        result.warnings.push(
+          `File ${file.name}: ${validation.warnings.join(", ")}`
+        );
       }
     }
 
@@ -117,11 +132,11 @@ export async function importPBQPackage(
 
     // Step 4: Begin upload process
     rollbackRequired = true;
-    
+
     for (const file of files) {
       try {
         const assetPath = generateAssetPath(questionId, version, file.path);
-        
+
         const assetMetadata = await putAsset({
           bucket: "pbq-assets",
           path: assetPath,
@@ -154,18 +169,28 @@ export async function importPBQPackage(
           });
         }
       } catch (error) {
-        result.errors.push(`Failed to upload ${file.name}: ${error instanceof Error ? error.message : "Unknown error"}`);
+        result.errors.push(
+          `Failed to upload ${file.name}: ${error instanceof Error ? error.message : "Unknown error"}`
+        );
         // Continue with other files, but mark for rollback
       }
     }
 
     // Step 5: Generate metadata asset
     if (result.errors.length === 0) {
-      const metadata = await generatePBQMetadata(questionId, version, result.importedAssets);
+      const metadata = await generatePBQMetadata(
+        questionId,
+        version,
+        result.importedAssets
+      );
       result.importedAssets.metadata = metadata;
 
       // Upload metadata file
-      const metadataPath = generateAssetPath(questionId, version, "metadata.json");
+      const metadataPath = generateAssetPath(
+        questionId,
+        version,
+        "metadata.json"
+      );
       await putAsset({
         bucket: "pbq-assets",
         path: metadataPath,
@@ -190,9 +215,10 @@ export async function importPBQPackage(
     rollbackRequired = !result.success;
 
     return result;
-
   } catch (error) {
-    result.errors.push(`Import failed: ${error instanceof Error ? error.message : "Unknown error"}`);
+    result.errors.push(
+      `Import failed: ${error instanceof Error ? error.message : "Unknown error"}`
+    );
     rollbackRequired = true;
     return result;
   } finally {
@@ -230,8 +256,12 @@ async function validatePackageStructure(packageData: ImportPackage): Promise<{
   }
 
   // Validate package structure
-  const hasImages = packageData.files.some(f => f.mimeType.startsWith("image/"));
-  const hasConfig = packageData.files.some(f => f.mimeType === "application/json");
+  const hasImages = packageData.files.some((f) =>
+    f.mimeType.startsWith("image/")
+  );
+  const hasConfig = packageData.files.some(
+    (f) => f.mimeType === "application/json"
+  );
 
   if (!hasImages) {
     warnings.push("Package contains no image assets");
@@ -246,16 +276,19 @@ async function validatePackageStructure(packageData: ImportPackage): Promise<{
     if (file.name.includes("..") || file.name.startsWith("/")) {
       errors.push(`Invalid file name: ${file.name}`);
     }
-    
+
     if (file.content.length === 0) {
       errors.push(`Empty file: ${file.name}`);
     }
   }
 
   // Validate package size
-  const totalSize = packageData.files.reduce((sum, file) => sum + file.content.length, 0);
+  const totalSize = packageData.files.reduce(
+    (sum, file) => sum + file.content.length,
+    0
+  );
   const maxPackageSize = 500 * 1024 * 1024; // 500MB
-  
+
   if (totalSize > maxPackageSize) {
     errors.push(`Package size ${totalSize} exceeds limit ${maxPackageSize}`);
   }
@@ -270,16 +303,19 @@ async function validatePackageStructure(packageData: ImportPackage): Promise<{
 /**
  * Check if assets already exist for a question/version
  */
-async function checkExistingAssets(questionId: string, version: string): Promise<{
+async function checkExistingAssets(
+  questionId: string,
+  version: string
+): Promise<{
   hasExisting: boolean;
   existingPaths: string[];
 }> {
   try {
     const basePath = FOLDER_STRUCTURE.PBQ_ASSETS.QUESTION(questionId, version);
     const metadataPath = `${basePath}/metadata.json`;
-    
+
     const hasMetadata = await exists("pbq-assets", metadataPath);
-    
+
     return {
       hasExisting: hasMetadata,
       existingPaths: hasMetadata ? [metadataPath] : [],
@@ -295,7 +331,11 @@ async function checkExistingAssets(questionId: string, version: string): Promise
 /**
  * Generate asset path within the PBQ structure
  */
-function generateAssetPath(questionId: string, version: string, fileName: string): string {
+function generateAssetPath(
+  questionId: string,
+  version: string,
+  fileName: string
+): string {
   const basePath = FOLDER_STRUCTURE.PBQ_ASSETS.QUESTION(questionId, version);
   return `${basePath}/${fileName}`;
 }
@@ -303,7 +343,10 @@ function generateAssetPath(questionId: string, version: string, fileName: string
 /**
  * Determine image type based on filename and path
  */
-function determineImageType(fileName: string, filePath: string): PBQImageAsset["type"] {
+function determineImageType(
+  fileName: string,
+  filePath: string
+): PBQImageAsset["type"] {
   const lowerName = fileName.toLowerCase();
   const lowerPath = filePath.toLowerCase();
 
@@ -316,14 +359,17 @@ function determineImageType(fileName: string, filePath: string): PBQImageAsset["
   if (lowerName.includes("diagram") || lowerPath.includes("diagram")) {
     return "diagram";
   }
-  
+
   return "reference";
 }
 
 /**
  * Determine config type based on filename and content
  */
-function determineConfigType(fileName: string, content: any): PBQConfigAsset["type"] {
+function determineConfigType(
+  fileName: string,
+  content: any
+): PBQConfigAsset["type"] {
   const lowerName = fileName.toLowerCase();
 
   if (lowerName.includes("drag") || lowerName.includes("drop")) {
@@ -340,7 +386,12 @@ function determineConfigType(fileName: string, content: any): PBQConfigAsset["ty
   }
 
   // Fallback based on content structure
-  if (Array.isArray(content) && content.length > 0 && content[0].x && content[0].y) {
+  if (
+    Array.isArray(content) &&
+    content.length > 0 &&
+    content[0].x &&
+    content[0].y
+  ) {
     return "hotspot-coords";
   }
   if (Array.isArray(content) && content.length > 0 && content[0].text) {
@@ -358,18 +409,21 @@ async function generatePBQMetadata(
   version: string,
   assets: ImportResult["importedAssets"]
 ): Promise<PBQMetadataAsset> {
-  const totalSize = [...assets.images, ...assets.configs].reduce((sum, asset) => {
-    // Size calculation would require actual file sizes
-    return sum + 1024; // Placeholder
-  }, 0);
+  const totalSize = [...assets.images, ...assets.configs].reduce(
+    (sum, asset) => {
+      // Size calculation would require actual file sizes
+      return sum + 1024; // Placeholder
+    },
+    0
+  );
 
   // Determine question type based on assets
   let questionType: PBQMetadataAsset["questionType"] = "simulation";
-  if (assets.configs.some(c => c.type === "drag-drop-items")) {
+  if (assets.configs.some((c) => c.type === "drag-drop-items")) {
     questionType = "drag-drop";
-  } else if (assets.configs.some(c => c.type === "hotspot-coords")) {
+  } else if (assets.configs.some((c) => c.type === "hotspot-coords")) {
     questionType = "hotspot";
-  } else if (assets.configs.some(c => c.type === "cli-seed")) {
+  } else if (assets.configs.some((c) => c.type === "cli-seed")) {
     questionType = "cli";
   }
 
@@ -398,7 +452,10 @@ async function generatePBQMetadata(
 /**
  * Publish PBQ assets to production (move from draft to published)
  */
-async function publishPBQAssets(questionId: string, version: string): Promise<void> {
+async function publishPBQAssets(
+  questionId: string,
+  version: string
+): Promise<void> {
   // This would copy assets from draft version to published folder
   // Implementation would depend on specific business requirements
   // For now, just mark as published in metadata
@@ -414,7 +471,9 @@ async function rollbackImport(uploadedPaths: string[]): Promise<void> {
     try {
       await deleteAsset("pbq-assets", path);
     } catch (error) {
-      errors.push(`Failed to delete ${path}: ${error instanceof Error ? error.message : "Unknown error"}`);
+      errors.push(
+        `Failed to delete ${path}: ${error instanceof Error ? error.message : "Unknown error"}`
+      );
     }
   }
 
@@ -433,8 +492,10 @@ export async function extractPBQPackage(
 ): Promise<ImportPackage> {
   // This would require a ZIP extraction library like yauzl or jszip
   // For now, return a mock structure
-  
-  throw new Error("ZIP extraction not implemented - requires additional dependencies");
+
+  throw new Error(
+    "ZIP extraction not implemented - requires additional dependencies"
+  );
 }
 
 /**
@@ -449,9 +510,13 @@ export async function validateImportedAssets(
   checksumMatches: boolean;
 }> {
   try {
-    const metadataPath = generateAssetPath(questionId, version, "metadata.json");
+    const metadataPath = generateAssetPath(
+      questionId,
+      version,
+      "metadata.json"
+    );
     const metadataExists = await exists("pbq-assets", metadataPath);
-    
+
     if (!metadataExists) {
       return {
         valid: false,
@@ -469,7 +534,9 @@ export async function validateImportedAssets(
   } catch (error) {
     return {
       valid: false,
-      errors: [`Validation error: ${error instanceof Error ? error.message : "Unknown error"}`],
+      errors: [
+        `Validation error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      ],
       checksumMatches: false,
     };
   }

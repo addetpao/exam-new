@@ -53,7 +53,9 @@ export function getPlanConfig(plan: SubscriptionPlan) {
 
 // Validate price ID
 export function isValidPriceId(priceId: string): boolean {
-  return Object.values(STRIPE_PRICING).some(config => config.priceId === priceId);
+  return Object.values(STRIPE_PRICING).some(
+    (config) => config.priceId === priceId
+  );
 }
 
 // Calculate subscription dates
@@ -61,7 +63,7 @@ export function calculateSubscriptionDates(planDays: number) {
   const startAt = new Date();
   const endAt = new Date();
   endAt.setDate(startAt.getDate() + planDays);
-  
+
   return {
     start_at: startAt.toISOString(),
     end_at: endAt.toISOString(),

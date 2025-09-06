@@ -29,16 +29,16 @@ class GA4Analytics {
 
     try {
       const url = `https://www.google-analytics.com/mp/collect?measurement_id=${this.measurementId}&api_secret=${this.apiSecret}`;
-      
+
       const payload = {
         client_id: clientId,
-        events: events.map(event => ({
+        events: events.map((event) => ({
           name: event.name,
           params: {
             ...event.parameters,
             timestamp_micros: Date.now() * 1000,
-          }
-        }))
+          },
+        })),
       };
 
       const response = await fetch(url, {
@@ -60,13 +60,16 @@ class GA4Analytics {
   /**
    * Track practice session events
    */
-  async trackPracticeSession(userId: string, sessionData: {
-    session_id: string;
-    domain: string;
-    questions_count: number;
-    correct_answers: number;
-    session_duration: number;
-  }): Promise<void> {
+  async trackPracticeSession(
+    userId: string,
+    sessionData: {
+      session_id: string;
+      domain: string;
+      questions_count: number;
+      correct_answers: number;
+      session_duration: number;
+    }
+  ): Promise<void> {
     await this.trackEvent(userId, [
       {
         name: "practice_session_complete",
@@ -75,25 +78,31 @@ class GA4Analytics {
           domain: sessionData.domain,
           questions_count: sessionData.questions_count,
           correct_answers: sessionData.correct_answers,
-          accuracy_rate: (sessionData.correct_answers / sessionData.questions_count) * 100,
-          session_duration_minutes: Math.round(sessionData.session_duration / 60),
+          accuracy_rate:
+            (sessionData.correct_answers / sessionData.questions_count) * 100,
+          session_duration_minutes: Math.round(
+            sessionData.session_duration / 60
+          ),
           engagement_time_msec: sessionData.session_duration * 1000,
-        }
-      }
+        },
+      },
     ]);
   }
 
   /**
    * Track exam session events
    */
-  async trackExamSession(userId: string, examData: {
-    session_id: string;
-    exam_type: string;
-    score: number;
-    passed: boolean;
-    duration: number;
-    questions_count: number;
-  }): Promise<void> {
+  async trackExamSession(
+    userId: string,
+    examData: {
+      session_id: string;
+      exam_type: string;
+      score: number;
+      passed: boolean;
+      duration: number;
+      questions_count: number;
+    }
+  ): Promise<void> {
     await this.trackEvent(userId, [
       {
         name: "exam_session_complete",
@@ -105,19 +114,25 @@ class GA4Analytics {
           duration_minutes: Math.round(examData.duration / 60),
           questions_count: examData.questions_count,
           engagement_time_msec: examData.duration * 1000,
-        }
-      }
+        },
+      },
     ]);
   }
 
   /**
    * Track subscription events
    */
-  async trackSubscription(userId: string, subscriptionData: {
-    event_type: "subscription_created" | "subscription_cancelled" | "subscription_upgraded";
-    tier: string;
-    value: number;
-  }): Promise<void> {
+  async trackSubscription(
+    userId: string,
+    subscriptionData: {
+      event_type:
+        | "subscription_created"
+        | "subscription_cancelled"
+        | "subscription_upgraded";
+      tier: string;
+      value: number;
+    }
+  ): Promise<void> {
     await this.trackEvent(userId, [
       {
         name: subscriptionData.event_type,
@@ -125,25 +140,28 @@ class GA4Analytics {
           tier: subscriptionData.tier,
           value: subscriptionData.value,
           currency: "USD",
-        }
-      }
+        },
+      },
     ]);
   }
 
   /**
    * Track user authentication events
    */
-  async trackAuth(userId: string, authData: {
-    method: "email" | "google" | "github";
-    event_type: "sign_up" | "sign_in";
-  }): Promise<void> {
+  async trackAuth(
+    userId: string,
+    authData: {
+      method: "email" | "google" | "github";
+      event_type: "sign_up" | "sign_in";
+    }
+  ): Promise<void> {
     await this.trackEvent(userId, [
       {
         name: authData.event_type,
         parameters: {
           method: authData.method,
-        }
-      }
+        },
+      },
     ]);
   }
 }

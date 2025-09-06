@@ -2,7 +2,7 @@
 
 **Document Version**: 1.0  
 **Created**: September 2025  
-**QA Agent**: Claude QA Agent  
+**QA Agent**: Claude QA Agent
 
 ## Overview
 
@@ -12,10 +12,11 @@ This document establishes standardized bug reporting templates, classification p
 
 ### 1.1 Standard Bug Report Format
 
-```markdown
+````markdown
 # Bug Report: [BUG-###] - [Brief Description]
 
 ## Bug Information
+
 - **Bug ID**: BUG-[###] (auto-generated)
 - **Reporter**: [Agent/User name]
 - **Date Reported**: [Date]
@@ -29,29 +30,37 @@ This document establishes standardized bug reporting templates, classification p
 - **Environment**: Local | Staging | Production
 
 ## Summary
+
 [One-sentence description of the bug]
 
 ## Description
+
 [Detailed description of the issue, including what was expected vs. what actually happened]
 
 ## Steps to Reproduce
+
 1. [First step]
 2. [Second step]
 3. [Third step]
 4. [Continue as needed]
 
 ## Expected Behavior
+
 [What should have happened]
 
 ## Actual Behavior
+
 [What actually happened]
 
 ## Screenshots/Videos
+
 [Include visual evidence if applicable]
+
 - Screenshot 1: [Description]
 - Video: [Link to recording]
 
 ## Environment Details
+
 - **Operating System**: [Windows/macOS/Linux version]
 - **Browser**: [Chrome/Firefox/Safari version]
 - **Screen Resolution**: [If UI-related]
@@ -59,6 +68,7 @@ This document establishes standardized bug reporting templates, classification p
 - **Network Conditions**: [If relevant]
 
 ## Test Data Used
+
 ```json
 {
   "user_email": "test.user@example.com",
@@ -67,32 +77,39 @@ This document establishes standardized bug reporting templates, classification p
   "exam_attempt_id": "attempt-789"
 }
 ```
+````
 
 ## Error Messages/Logs
+
 ```
 [Console errors, server logs, or error messages]
 ```
 
 ## Impact Assessment
+
 - **User Impact**: [How many users affected, severity of impact]
 - **Business Impact**: [Revenue, exam integrity, user experience]
 - **Workaround Available**: Yes/No - [If yes, describe workaround]
 
 ## Related Information
+
 - **Related Bug Reports**: [Links to similar issues]
 - **Related Test Cases**: [Test cases that failed]
 - **Git Commit**: [If tied to specific deployment]
 - **Pull Request**: [If related to recent changes]
 
 ## Additional Context
+
 [Any other relevant information, assumptions, or context]
 
 ## Attachments
+
 - [ ] Error logs
 - [ ] Network traces
 - [ ] Database state snapshots
 - [ ] Configuration files
-```
+
+````
 
 ## 2. Bug Classification System
 
@@ -108,7 +125,7 @@ This document establishes standardized bug reporting templates, classification p
 - **Response Time**: Immediate (within 1 hour)
 - **Resolution Target**: Same day
 
-#### High  
+#### High
 - **Definition**: Core functionality broken, major user workflow blocked
 - **Examples**:
   - Cannot start/complete exams
@@ -132,7 +149,7 @@ This document establishes standardized bug reporting templates, classification p
 - **Definition**: Cosmetic issues, minor inconveniences
 - **Examples**:
   - Typos or text formatting issues
-  - Minor visual inconsistencies  
+  - Minor visual inconsistencies
   - Non-functional enhancements
   - Documentation errors
 - **Response Time**: Within 3 business days
@@ -188,7 +205,7 @@ This document establishes standardized bug reporting templates, classification p
 
 ### Specific Issue
 [Detailed description of exam-specific problem]
-```
+````
 
 ### 3.2 Payment/Subscription Bug Report
 
@@ -196,23 +213,27 @@ This document establishes standardized bug reporting templates, classification p
 ## Payment/Subscription Bug Report
 
 ### Payment Details
+
 - **Plan Selected**: [30-day, 60-day, 90-day, 180-day]
 - **Payment Method**: [Credit card, PayPal]
 - **Amount**: [Expected vs. charged]
 - **Currency**: [USD, EUR, etc.]
 
 ### Stripe Information
+
 - **Payment Intent ID**: [pi_xxxxxxxx]
 - **Subscription ID**: [sub_xxxxxxxx]
 - **Customer ID**: [cus_xxxxxxxx]
 - **Webhook Events**: [List of received webhooks]
 
 ### Flow State
+
 - **Checkout Step**: [Started, completed, failed]
 - **Redirect Behavior**: [Successful return to app]
 - **Subscription Activation**: [Successful/failed]
 
 ### Database State
+
 - **User Subscription Record**: [Current state in DB]
 - **Plan Limits**: [Applied correctly or not]
 - **Billing History**: [Payment recorded]
@@ -224,17 +245,20 @@ This document establishes standardized bug reporting templates, classification p
 ## Authentication Bug Report
 
 ### Auth Method
+
 - **Login Type**: Email/password | OAuth (Google, GitHub)
 - **User Role**: User | SME | Editor | Admin
 - **Session State**: [Authenticated, expired, invalid]
 
 ### Flow Context
+
 - **First Login**: Yes/No
 - **Password Reset**: Recently performed
 - **Multi-tab Session**: Active sessions in other tabs
 - **Device Switch**: Logged in on multiple devices
 
 ### Security Context
+
 - **JWT Token**: [Valid/expired/malformed]
 - **Session Duration**: [How long session was active]
 - **Permissions**: [What user was trying to access]
@@ -258,39 +282,41 @@ graph LR
 
 ### 4.2 Status Definitions
 
-| Status | Definition | Next Actions |
-|--------|------------|--------------|
-| New | Bug reported, awaiting triage | Review, classify, assign |
-| Assigned | Assigned to developer/agent | Begin investigation and fix |
-| In Progress | Actively being worked on | Continue development, provide updates |
-| Resolved | Fix implemented, awaiting verification | QA verification, deploy to test |
-| Closed | Verified as fixed, deployed | Monitor for regression |
-| Reopened | Issue persists after fix attempt | Re-investigate, reassign |
-| Rejected | Not a valid bug or won't fix | Document reason, close |
+| Status      | Definition                             | Next Actions                          |
+| ----------- | -------------------------------------- | ------------------------------------- |
+| New         | Bug reported, awaiting triage          | Review, classify, assign              |
+| Assigned    | Assigned to developer/agent            | Begin investigation and fix           |
+| In Progress | Actively being worked on               | Continue development, provide updates |
+| Resolved    | Fix implemented, awaiting verification | QA verification, deploy to test       |
+| Closed      | Verified as fixed, deployed            | Monitor for regression                |
+| Reopened    | Issue persists after fix attempt       | Re-investigate, reassign              |
+| Rejected    | Not a valid bug or won't fix           | Document reason, close                |
 
 ### 4.3 Assignment Rules
 
-| Component | Primary Assignee | Backup Assignee |
-|-----------|------------------|-----------------|
-| Frontend UI/UX | Frontend Agent | QA Agent |
-| Backend API | Backend Agent | Database Agent |
-| Database | Database Agent | Backend Agent |
-| Authentication | Authentication Agent | Security Agent |
-| Payments | Payments Agent | Backend Agent |
-| Infrastructure | DevOps Agent | Backend Agent |
-| Security | Security Agent | DevOps Agent |
+| Component      | Primary Assignee     | Backup Assignee |
+| -------------- | -------------------- | --------------- |
+| Frontend UI/UX | Frontend Agent       | QA Agent        |
+| Backend API    | Backend Agent        | Database Agent  |
+| Database       | Database Agent       | Backend Agent   |
+| Authentication | Authentication Agent | Security Agent  |
+| Payments       | Payments Agent       | Backend Agent   |
+| Infrastructure | DevOps Agent         | Backend Agent   |
+| Security       | Security Agent       | DevOps Agent    |
 
 ## 5. Bug Verification Procedures
 
 ### 5.1 Verification Checklist
 
 #### Pre-Resolution Verification
+
 - [ ] Bug reproduced in test environment
 - [ ] Root cause identified and documented
 - [ ] Impact assessment completed
 - [ ] Fix approach reviewed and approved
 
-#### Post-Resolution Verification  
+#### Post-Resolution Verification
+
 - [ ] Fix verified in test environment
 - [ ] Regression testing completed
 - [ ] Performance impact assessed
@@ -298,6 +324,7 @@ graph LR
 - [ ] Related test cases updated
 
 #### Deployment Verification
+
 - [ ] Fix deployed to staging
 - [ ] Smoke tests passed
 - [ ] Bug verified as fixed in staging
@@ -306,12 +333,14 @@ graph LR
 ### 5.2 Regression Testing Requirements
 
 #### Critical/High Bugs
+
 - Full regression suite execution
 - Specific test cases for affected functionality
 - Cross-browser/device validation
 - Performance benchmark comparison
 
 #### Medium/Low Bugs
+
 - Smoke test suite execution
 - Focused testing on affected area
 - Single browser validation sufficient
@@ -321,16 +350,19 @@ graph LR
 ### 6.1 Key Metrics
 
 #### Discovery Metrics
+
 - **Bug Discovery Rate**: Bugs found per week/release
 - **Defect Density**: Bugs per lines of code/feature points
 - **Escape Rate**: Production bugs not caught in testing
 
 #### Resolution Metrics
+
 - **Resolution Time**: Average time from report to fix
 - **First-Time Fix Rate**: Percentage of bugs fixed on first attempt
 - **Reopened Rate**: Percentage of bugs that reopen
 
 #### Quality Metrics
+
 - **Severity Distribution**: Breakdown by Critical/High/Medium/Low
 - **Component Distribution**: Which areas have most bugs
 - **Root Cause Analysis**: Common causes of defects
@@ -338,26 +370,32 @@ graph LR
 ### 6.2 Regular Reports
 
 #### Daily Bug Report
+
 ```markdown
 ## Daily Bug Summary - [Date]
 
 ### New Bugs: [Count]
+
 - Critical: [Count]
-- High: [Count] 
+- High: [Count]
 - Medium: [Count]
 - Low: [Count]
 
 ### Resolved Bugs: [Count]
+
 ### Critical Issues Outstanding: [Count]
+
 ### Average Resolution Time: [X] hours
 
 ### Top Issues:
+
 1. [Most critical open bug]
 2. [Second most critical]
 3. [Third most critical]
 ```
 
 #### Weekly Bug Analysis
+
 - Trend analysis (increasing/decreasing bug rates)
 - Component analysis (which areas need attention)
 - Team performance metrics
@@ -368,12 +406,13 @@ graph LR
 ### 7.1 GitHub Integration
 
 #### Issue Templates
+
 ```yaml
 name: Bug Report
 about: Create a report to help us improve
-title: '[BUG] Brief description'
-labels: ['bug', 'needs-triage']
-assignees: ''
+title: "[BUG] Brief description"
+labels: ["bug", "needs-triage"]
+assignees: ""
 
 body:
   - type: dropdown
@@ -387,7 +426,7 @@ body:
         - Low
     validations:
       required: true
-      
+
   - type: input
     id: component
     attributes:
@@ -398,6 +437,7 @@ body:
 ```
 
 #### Automated Workflows
+
 - Bug triage automation based on labels
 - Assignment based on component affected
 - Status updates triggered by PR merges
@@ -406,16 +446,19 @@ body:
 ### 7.2 MCP Integration
 
 #### GitHub MCP
+
 - Automated bug report creation from test failures
 - PR status updates when bugs are resolved
 - Issue linking between bugs and code changes
 
 #### Supabase MCP
+
 - Database state snapshots for bug reproduction
 - User data anonymization for bug reports
 - Schema validation for data-related bugs
 
 #### Stripe MCP
+
 - Payment transaction debugging information
 - Webhook event correlation with bug reports
 - Test mode recreation of payment issues
@@ -425,6 +468,7 @@ body:
 ### 8.1 Bug Report Quality Review
 
 #### Review Checklist
+
 - [ ] Title clearly describes the issue
 - [ ] Reproduction steps are clear and complete
 - [ ] Expected vs actual behavior documented
@@ -434,6 +478,7 @@ body:
 - [ ] Supporting evidence attached
 
 #### Common Review Issues
+
 - Vague descriptions that can't be reproduced
 - Missing environment or configuration details
 - Incorrect severity/priority classification
@@ -443,6 +488,7 @@ body:
 ### 8.2 Resolution Quality Gates
 
 #### Definition of Fixed
+
 - [ ] Root cause identified and documented
 - [ ] Fix implemented with code review
 - [ ] Unit tests added/updated
@@ -456,12 +502,14 @@ body:
 ### 9.1 Bug Reporting Training
 
 #### For Developers/Agents
+
 - How to write clear, actionable bug reports
 - Proper classification and prioritization
 - Using debugging tools effectively
 - Root cause analysis techniques
 
 #### For QA Team
+
 - Bug triage and classification
 - Verification procedures
 - Quality gates enforcement
@@ -470,6 +518,7 @@ body:
 ### 9.2 Best Practices
 
 #### Reporting Best Practices
+
 - Report bugs immediately when found
 - One bug per report (don't combine multiple issues)
 - Provide minimal reproduction steps
@@ -477,6 +526,7 @@ body:
 - Use consistent terminology
 
 #### Resolution Best Practices
+
 - Fix root cause, not just symptoms
 - Add regression tests for all fixes
 - Document fix approach in PR
@@ -486,6 +536,7 @@ body:
 ---
 
 **Document Control**
+
 - **Author**: QA Agent (Claude)
 - **Version**: 1.0
 - **Last Updated**: September 2025

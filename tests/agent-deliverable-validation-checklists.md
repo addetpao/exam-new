@@ -2,7 +2,7 @@
 
 **Document Version**: 1.0  
 **Created**: September 2025  
-**QA Agent**: Claude QA Agent  
+**QA Agent**: Claude QA Agent
 
 ## Overview
 
@@ -11,6 +11,7 @@ This document provides comprehensive validation checklists for all agent deliver
 ## 1. Validation Framework
 
 ### 1.1 Validation Principles
+
 - **Completeness**: All requirements met according to task specification
 - **Quality**: Code meets platform standards and best practices
 - **Integration**: Changes work correctly with existing system
@@ -18,6 +19,7 @@ This document provides comprehensive validation checklists for all agent deliver
 - **Documentation**: Changes properly documented
 
 ### 1.2 Validation Workflow
+
 ```
 Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejection
 ```
@@ -27,6 +29,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 2.1 UI Component Validation Checklist
 
 #### Functional Requirements
+
 - [ ] **Component Renders**: Component renders without errors in all states
 - [ ] **Props Interface**: All required props documented and validated
 - [ ] **Event Handling**: All user interactions properly handled
@@ -35,6 +38,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Loading States**: Loading indicators implemented where appropriate
 
 #### Technical Implementation
+
 - [ ] **TypeScript**: Proper typing for all props, state, and functions
 - [ ] **Performance**: No unnecessary re-renders or memory leaks
 - [ ] **Responsiveness**: Works on desktop, tablet, and mobile viewports
@@ -43,6 +47,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Bundle Impact**: Bundle size increase documented and justified
 
 #### Accessibility (WCAG 2.1 AA)
+
 - [ ] **Keyboard Navigation**: All interactive elements keyboard accessible
 - [ ] **ARIA Labels**: Proper ARIA attributes for screen readers
 - [ ] **Focus Management**: Logical focus order and visible focus indicators
@@ -51,6 +56,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Screen Reader Testing**: Verified with NVDA/VoiceOver
 
 #### Testing Coverage
+
 - [ ] **Unit Tests**: >90% code coverage with meaningful tests
 - [ ] **Integration Tests**: Component integration with parent components tested
 - [ ] **Visual Tests**: Screenshots captured for visual regression testing
@@ -60,6 +66,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 2.2 Page/Route Validation Checklist
 
 #### Page Structure
+
 - [ ] **Routing**: Correct route configuration and navigation
 - [ ] **Layout**: Proper layout components and responsive design
 - [ ] **SEO**: Meta tags, titles, and structured data implemented
@@ -68,6 +75,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Authentication**: Protected routes properly secured
 
 #### Performance
+
 - [ ] **Page Load Time**: Initial page load <2 seconds
 - [ ] **First Contentful Paint**: <1 second measured
 - [ ] **Largest Contentful Paint**: <2.5 seconds measured
@@ -78,6 +86,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 2.3 State Management Validation
 
 #### Redux/Context Implementation
+
 - [ ] **Action Types**: All actions properly typed and documented
 - [ ] **Reducers**: Pure functions with immutable state updates
 - [ ] **Selectors**: Memoized selectors for performance
@@ -90,6 +99,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 3.1 API Endpoint Validation Checklist
 
 #### Functional Requirements
+
 - [ ] **Request Handling**: All HTTP methods properly implemented
 - [ ] **Input Validation**: Request body and parameters validated with Zod
 - [ ] **Output Format**: Response format consistent with API standards
@@ -98,6 +108,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Data Persistence**: Database operations work correctly
 
 #### Security Implementation
+
 - [ ] **Authentication**: Endpoints properly secured with auth checks
 - [ ] **Authorization**: RBAC permissions enforced correctly
 - [ ] **Input Sanitization**: All inputs sanitized against injection attacks
@@ -106,6 +117,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Sensitive Data**: No sensitive data in logs or responses
 
 #### Performance & Scalability
+
 - [ ] **Response Time**: API responses <300ms average
 - [ ] **Database Queries**: Optimized queries with proper indexing
 - [ ] **Caching**: Appropriate caching strategy implemented
@@ -114,6 +126,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Concurrent Requests**: Handles multiple concurrent requests
 
 #### Documentation & Testing
+
 - [ ] **API Documentation**: OpenAPI/Swagger documentation complete
 - [ ] **Unit Tests**: >90% code coverage for business logic
 - [ ] **Integration Tests**: Database integration tested
@@ -124,6 +137,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 3.2 Database Schema Validation
 
 #### Schema Design
+
 - [ ] **Table Structure**: Tables properly normalized and structured
 - [ ] **Data Types**: Appropriate data types for all columns
 - [ ] **Constraints**: Primary keys, foreign keys, and constraints defined
@@ -132,6 +146,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Seed Data**: Initial data scripts for development/testing
 
 #### Security & Access
+
 - [ ] **RLS Policies**: Row-level security policies implemented correctly
 - [ ] **RBAC**: Role-based access control at database level
 - [ ] **Sensitive Data**: PII properly encrypted or hashed
@@ -144,6 +159,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 4.1 Authentication System Validation
 
 #### Core Authentication
+
 - [ ] **Multi-Auth Support**: Email/password and OAuth providers working
 - [ ] **Session Management**: Secure session handling with appropriate timeouts
 - [ ] **Password Security**: Proper hashing with bcrypt/Argon2
@@ -152,6 +168,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Account Recovery**: Password reset flow functional
 
 #### Security Features
+
 - [ ] **Rate Limiting**: Brute force protection on login endpoints
 - [ ] **Account Lockout**: Temporary lockout after failed attempts
 - [ ] **CSRF Protection**: CSRF tokens on sensitive operations
@@ -160,6 +177,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Audit Logging**: All auth events logged with proper detail
 
 #### User Experience
+
 - [ ] **Login Flow**: Smooth login experience across all methods
 - [ ] **Registration**: User registration with email verification
 - [ ] **Password Reset**: Clear and secure password reset process
@@ -170,6 +188,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 4.2 RBAC System Validation
 
 #### Role Management
+
 - [ ] **Role Definition**: User, SME, Editor, Admin roles properly defined
 - [ ] **Permission Matrix**: All permissions clearly mapped to roles
 - [ ] **Role Assignment**: Users can be assigned and removed from roles
@@ -178,6 +197,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Audit Trail**: Role changes logged and tracked
 
 #### Permission Enforcement
+
 - [ ] **API Level**: All API endpoints check permissions
 - [ ] **UI Level**: Frontend hides/shows features based on permissions
 - [ ] **Database Level**: RLS policies enforce data access controls
@@ -190,6 +210,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 5.1 Stripe Integration Validation
 
 #### Checkout Process
+
 - [ ] **Checkout Flow**: Complete checkout process working end-to-end
 - [ ] **Payment Methods**: Credit cards and PayPal working
 - [ ] **Plan Selection**: All subscription plans available and working
@@ -198,6 +219,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Coupon/Discounts**: Promotional codes working correctly
 
 #### Webhook Handling
+
 - [ ] **Webhook Security**: Webhook signatures properly verified
 - [ ] **Event Processing**: All relevant Stripe events handled
 - [ ] **Idempotency**: Duplicate webhook events handled gracefully
@@ -206,6 +228,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **User Notifications**: Users notified of payment events
 
 #### Subscription Management
+
 - [ ] **Plan Activation**: Features unlocked immediately after payment
 - [ ] **Usage Tracking**: Plan limits enforced correctly
 - [ ] **Cancellation**: Users can cancel subscriptions properly
@@ -216,6 +239,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 5.2 Business Logic Validation
 
 #### Plan Enforcement
+
 - [ ] **Feature Gates**: Features locked/unlocked based on subscription
 - [ ] **Usage Limits**: Exam attempts, practice questions properly limited
 - [ ] **Trial Logic**: Trial periods and limitations working
@@ -228,6 +252,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 6.1 File Storage Validation
 
 #### Upload System
+
 - [ ] **File Upload**: Files upload successfully to Supabase Storage
 - [ ] **File Types**: Only allowed file types accepted
 - [ ] **File Size**: Size limits enforced correctly
@@ -236,6 +261,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Error Handling**: Upload failures handled gracefully
 
 #### Access Control
+
 - [ ] **RLS Policies**: Row-level security for file access
 - [ ] **URL Generation**: Signed URLs for private files
 - [ ] **Permission Checks**: User permissions verified before access
@@ -244,6 +270,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **CDN Integration**: Files served efficiently via CDN
 
 #### PBQ Asset Management
+
 - [ ] **PBQ Assets**: Performance-based question assets uploaded
 - [ ] **Asset Organization**: Files organized by question/domain
 - [ ] **Version Control**: Asset versioning if required
@@ -256,6 +283,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 7.1 CI/CD Pipeline Validation
 
 #### GitHub Actions
+
 - [ ] **Build Process**: Code builds successfully in CI
 - [ ] **Test Execution**: All test suites run in CI environment
 - [ ] **Environment Variables**: Secrets properly configured
@@ -264,6 +292,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Deployment**: Automated deployment to staging/production
 
 #### Infrastructure
+
 - [ ] **Vercel Configuration**: Frontend deploys correctly
 - [ ] **Environment Setup**: All environments (dev/staging/prod) configured
 - [ ] **Database Migrations**: Migrations run automatically
@@ -274,6 +303,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 7.2 Deployment Validation
 
 #### Deployment Process
+
 - [ ] **Zero Downtime**: Deployments don't cause downtime
 - [ ] **Rollback Capability**: Easy rollback process available
 - [ ] **Health Checks**: Post-deployment health checks pass
@@ -286,6 +316,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 8.1 Security Implementation Validation
 
 #### Application Security
+
 - [ ] **Input Validation**: All user inputs validated and sanitized
 - [ ] **Output Encoding**: Data properly encoded to prevent XSS
 - [ ] **SQL Injection**: Parameterized queries prevent SQL injection
@@ -294,6 +325,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **HTTPS**: All traffic forced to HTTPS
 
 #### Data Protection
+
 - [ ] **PII Handling**: Personal information properly protected
 - [ ] **Encryption**: Sensitive data encrypted at rest and in transit
 - [ ] **Key Management**: Encryption keys properly managed
@@ -304,6 +336,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 8.2 Vulnerability Assessment
 
 #### Security Testing
+
 - [ ] **SAST**: Static application security testing passed
 - [ ] **DAST**: Dynamic application security testing passed
 - [ ] **Dependency Scan**: No high/critical vulnerabilities in dependencies
@@ -316,6 +349,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 9.1 Test Deliverable Validation
 
 #### Test Cases
+
 - [ ] **Test Coverage**: Acceptance criteria mapped to test cases
 - [ ] **Test Quality**: Test cases clear, repeatable, and comprehensive
 - [ ] **Edge Cases**: Negative scenarios and edge cases covered
@@ -324,6 +358,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - [ ] **Documentation**: Test procedures clearly documented
 
 #### Test Execution
+
 - [ ] **Test Environment**: Proper test environment setup
 - [ ] **Test Data**: Appropriate test data and fixtures
 - [ ] **Test Results**: Results properly documented and tracked
@@ -336,6 +371,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 10.1 Review Stages
 
 #### Primary Validation (QA Agent)
+
 1. **Functional Review**: All functional requirements met
 2. **Technical Review**: Code quality and best practices followed
 3. **Test Review**: Adequate test coverage and quality
@@ -343,6 +379,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 5. **Integration Review**: Changes work with existing system
 
 #### Secondary Validation (Peer Agent)
+
 1. **Domain Expertise**: Technical accuracy in specific domain
 2. **Architecture Review**: Changes align with system architecture
 3. **Performance Impact**: No negative performance impact
@@ -352,6 +389,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ### 10.2 Sign-off Requirements
 
 #### QA Sign-off Template
+
 ```markdown
 ## QA Validation Sign-off
 
@@ -361,25 +399,30 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 **Status**: ✅ APPROVED / ❌ REJECTED / ⚠️ CONDITIONAL
 
 ### Validation Results
+
 - [ ] Functional Requirements: PASS/FAIL
-- [ ] Technical Standards: PASS/FAIL  
+- [ ] Technical Standards: PASS/FAIL
 - [ ] Test Coverage: PASS/FAIL
 - [ ] Documentation: PASS/FAIL
 - [ ] Integration: PASS/FAIL
 
 ### Issues Found: [Number]
+
 **Critical**: [Number] - [Brief description]
 **High**: [Number] - [Brief description]
 **Medium**: [Number] - [Brief description]
 **Low**: [Number] - [Brief description]
 
 ### Recommendations
+
 [List of recommendations for improvement]
 
 ### Approval Conditions
+
 [Any conditions that must be met before final approval]
 
 ### Sign-off
+
 **QA Agent Approval**: [Date and signature]
 **Ready for Deployment**: YES/NO
 ```
@@ -387,6 +430,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ## 11. Continuous Improvement
 
 ### 11.1 Validation Metrics
+
 - **First-Time Pass Rate**: Percentage of deliverables passing initial validation
 - **Validation Time**: Average time required for validation process
 - **Issue Discovery Rate**: Issues found during validation vs. production
@@ -394,6 +438,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 - **Process Efficiency**: Time from deliverable to approval
 
 ### 11.2 Process Refinement
+
 - Regular review of validation criteria effectiveness
 - Feedback integration from agents and stakeholders
 - Automation of repetitive validation tasks
@@ -403,6 +448,7 @@ Agent Deliverable → QA Validation → Stakeholder Review → Approval/Rejectio
 ---
 
 **Document Control**
+
 - **Author**: QA Agent (Claude)
 - **Version**: 1.0
 - **Last Updated**: September 2025

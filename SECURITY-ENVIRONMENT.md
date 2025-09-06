@@ -16,6 +16,7 @@ The following production secrets were exposed and must be rotated:
    - Service Role Key: `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...`
 
 **IMMEDIATE ACTIONS REQUIRED:**
+
 1. Generate new Supabase API keys
 2. Update production environment variables in Vercel
 3. Invalidate old keys in Supabase dashboard
@@ -26,6 +27,7 @@ The following production secrets were exposed and must be rotated:
 ### Development Setup
 
 1. Copy `.env.example` to `.env.local`:
+
    ```bash
    cp .env.example .env.local
    ```
@@ -37,6 +39,7 @@ The following production secrets were exposed and must be rotated:
 ### Environment Variable Categories
 
 #### Public Variables (Safe to expose)
+
 ```bash
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=pk_test_...
@@ -44,6 +47,7 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ```
 
 #### Private Variables (Server-side only)
+
 ```bash
 SUPABASE_URL=https://your-project.supabase.co
 SUPABASE_ANON_KEY=eyJ...
@@ -55,11 +59,13 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ### Security Requirements
 
 #### Development Environment
+
 - Use test/development keys only
 - Keep `.env.local` out of version control
 - Never share environment files via email/chat
 
 #### Production Environment
+
 - Store secrets in Vercel environment variables
 - Use production keys only
 - Enable secret scanning in CI/CD
@@ -94,6 +100,7 @@ STRIPE_WEBHOOK_SECRET=whsec_...
 ### Emergency Response
 
 If secrets are exposed:
+
 1. **IMMEDIATE**: Remove from public repositories
 2. **URGENT**: Rotate all affected credentials
 3. **CRITICAL**: Update production environments

@@ -3,9 +3,9 @@
 
 export type StorageBucket = "pbq-assets" | "content-media" | "temp-uploads";
 
-export type MimeType = 
+export type MimeType =
   | "image/png"
-  | "image/jpeg" 
+  | "image/jpeg"
   | "image/gif"
   | "image/webp"
   | "image/svg+xml"
@@ -130,9 +130,12 @@ export interface AssetValidationResult {
 export const FOLDER_STRUCTURE = {
   PBQ_ASSETS: {
     BASE: "pbq",
-    QUESTION: (questionId: string, version: string) => `pbq/${questionId}/${version}`,
-    IMAGES: (questionId: string, version: string) => `pbq/${questionId}/${version}/images`,
-    CONFIGS: (questionId: string, version: string) => `pbq/${questionId}/${version}/configs`,
+    QUESTION: (questionId: string, version: string) =>
+      `pbq/${questionId}/${version}`,
+    IMAGES: (questionId: string, version: string) =>
+      `pbq/${questionId}/${version}/images`,
+    CONFIGS: (questionId: string, version: string) =>
+      `pbq/${questionId}/${version}/configs`,
     PUBLISHED: (questionId: string) => `pbq/${questionId}/published`,
   },
   CONTENT_MEDIA: {
@@ -142,7 +145,8 @@ export const FOLDER_STRUCTURE = {
   },
   TEMP_UPLOADS: {
     USER: (userId: string) => userId,
-    IMPORT: (userId: string, sessionId: string) => `${userId}/imports/${sessionId}`,
+    IMPORT: (userId: string, sessionId: string) =>
+      `${userId}/imports/${sessionId}`,
   },
 } as const;
 

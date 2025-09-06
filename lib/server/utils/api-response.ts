@@ -16,11 +16,17 @@ export interface APIResponse<T = any> {
 /**
  * Create a standardized success response
  */
-export function createSuccessResponse<T>(data: T, status: number = 200): NextResponse<APIResponse<T>> {
-  return NextResponse.json({
-    data,
-    timestamp: new Date().toISOString()
-  }, { status });
+export function createSuccessResponse<T>(
+  data: T,
+  status: number = 200
+): NextResponse<APIResponse<T>> {
+  return NextResponse.json(
+    {
+      data,
+      timestamp: new Date().toISOString(),
+    },
+    { status }
+  );
 }
 
 /**
@@ -32,14 +38,17 @@ export function createErrorResponse(
   details?: any,
   status: number = 400
 ): NextResponse<APIResponse> {
-  return NextResponse.json({
-    error: {
-      code,
-      message,
-      details
+  return NextResponse.json(
+    {
+      error: {
+        code,
+        message,
+        details,
+      },
+      timestamp: new Date().toISOString(),
     },
-    timestamp: new Date().toISOString()
-  }, { status });
+    { status }
+  );
 }
 
 /**
@@ -62,7 +71,7 @@ export function handleAPIError(error: unknown): NextResponse<APIResponse> {
     if (error.message.includes("not found")) {
       return createErrorResponse("NOT_FOUND", error.message, null, 404);
     }
-    
+
     if (error.message.includes("unauthorized")) {
       return createErrorResponse("UNAUTHORIZED", error.message, null, 401);
     }
@@ -85,7 +94,10 @@ export function handleAPIError(error: unknown): NextResponse<APIResponse> {
 /**
  * HTTP method validation middleware
  */
-export function validateMethod(request: Request, allowedMethods: string[]): NextResponse<APIResponse> | null {
+export function validateMethod(
+  request: Request,
+  allowedMethods: string[]
+): NextResponse<APIResponse> | null {
   if (!allowedMethods.includes(request.method)) {
     return createErrorResponse(
       "METHOD_NOT_ALLOWED",

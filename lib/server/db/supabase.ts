@@ -14,8 +14,8 @@ export function createSupabaseAdmin(): SupabaseClient {
   return createClient(supabaseUrl, supabaseServiceRole, {
     auth: {
       autoRefreshToken: false,
-      persistSession: false
-    }
+      persistSession: false,
+    },
   });
 }
 
@@ -59,13 +59,16 @@ export function createSupabaseServer() {
  */
 export async function getAuthenticatedUser() {
   const supabase = createSupabaseServer();
-  
-  const { data: { user }, error } = await supabase.auth.getUser();
-  
+
+  const {
+    data: { user },
+    error,
+  } = await supabase.auth.getUser();
+
   if (error || !user) {
     throw new Error("unauthorized");
   }
-  
+
   return user;
 }
 
@@ -74,7 +77,7 @@ export async function getAuthenticatedUser() {
  */
 export async function requireRole(requiredRole: string) {
   const user = await getAuthenticatedUser();
-  
+
   // Get user profile with role information
   const supabase = createSupabaseAdmin();
   const { data: profile, error } = await supabase
@@ -82,14 +85,14 @@ export async function requireRole(requiredRole: string) {
     .select("app_role")
     .eq("id", user.id)
     .single();
-  
+
   if (error || !profile) {
     throw new Error("User profile not found");
   }
-  
+
   if ((profile as any).app_role !== requiredRole) {
     throw new Error("forbidden");
   }
-  
+
   return { user, profile };
 }

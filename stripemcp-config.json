@@ -2,12 +2,7 @@
   "mcpServers": {
     "stripe": {
       "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "@stripe/mcp@latest"
-      ],
+      "args": ["/c", "npx", "-y", "@stripe/mcp@latest"],
       "env": {
         "STRIPE_SECRET_KEY": "${STRIPE_SECRET_KEY}"
       }

@@ -6,7 +6,14 @@ export interface SubscriptionData {
   user_id: string;
   stripe_customer_id: string;
   stripe_subscription_id: string;
-  status: "active" | "trialing" | "past_due" | "canceled" | "incomplete" | "incomplete_expired" | "unpaid";
+  status:
+    | "active"
+    | "trialing"
+    | "past_due"
+    | "canceled"
+    | "incomplete"
+    | "incomplete_expired"
+    | "unpaid";
   plan_key: string;
   plan_days: number;
   self_assessment_remaining: number;
@@ -28,7 +35,9 @@ export async function updateSubscriptionFromStripe(
 
   // Get customer if user ID not provided
   if (!userId) {
-    const customer = await stripe.customers.retrieve(subscription.customer as string);
+    const customer = await stripe.customers.retrieve(
+      subscription.customer as string
+    );
     if (!customer || customer.deleted) {
       throw new Error("Customer not found");
     }
@@ -47,14 +56,14 @@ export async function updateSubscriptionFromStripe(
     if (error || !user) {
       throw new Error(`User not found for email: ${customerEmail}`);
     }
-    
+
     userId = user.id;
   }
 
   // Determine plan from price
   const priceId = subscription.items.data[0]?.price?.id;
   const planEntry = getPlanByPriceId(priceId);
-  
+
   if (!planEntry) {
     throw new Error(`Unknown price ID: ${priceId}`);
   }
@@ -90,9 +99,14 @@ export async function updateSubscriptionFromStripe(
   }
 
   // Track analytics event
-  const eventType = subscription.status === "trialing" ? "subscription_started" : 
-    subscription.status === "active" ? "subscription_activated" : 
-    subscription.status === "canceled" ? "subscription_cancelled" : "subscription_updated";
+  const eventType =
+    subscription.status === "trialing"
+      ? "subscription_started"
+      : subscription.status === "active"
+        ? "subscription_activated"
+        : subscription.status === "canceled"
+          ? "subscription_cancelled"
+          : "subscription_updated";
 
   try {
     await ga4Analytics.trackSubscription(userId, {
@@ -135,7 +149,10 @@ function mapStripeStatus(stripeStatus: string): SubscriptionData["status"] {
 /**
  * Cancel subscription
  */
-export async function cancelSubscription(subscriptionId: string, cancelAtPeriodEnd = true) {
+export async function cancelSubscription(
+  subscriptionId: string,
+  cancelAtPeriodEnd = true
+) {
   return await stripe.subscriptions.update(subscriptionId, {
     cancel_at_period_end: cancelAtPeriodEnd,
   });
@@ -166,14 +183,16 @@ export async function hasActiveSubscription(userId: string): Promise<boolean> {
 
   const now = new Date();
   const endAt = new Date(subscription.end_at);
-  
+
   return now < endAt && ["active", "trialing"].includes(subscription.status);
 }
 
 /**
  * Get user's subscription details
  */
-export async function getUserSubscription(userId: string): Promise<SubscriptionData | null> {
+export async function getUserSubscription(
+  userId: string
+): Promise<SubscriptionData | null> {
   const supabase = createSupabaseAdmin();
 
   const { data: subscription, error } = await supabase

@@ -24,7 +24,9 @@ export async function getOrCreateCustomer(user: UserProfile): Promise<string> {
   if (existingUser?.stripe_customer_id) {
     // Verify customer still exists in Stripe
     try {
-      const customer = await stripe.customers.retrieve(existingUser.stripe_customer_id);
+      const customer = await stripe.customers.retrieve(
+        existingUser.stripe_customer_id
+      );
       if (customer && !customer.deleted) {
         return existingUser.stripe_customer_id;
       }
@@ -46,7 +48,7 @@ export async function getOrCreateCustomer(user: UserProfile): Promise<string> {
   // Update user record with Stripe customer ID
   await supabase
     .from("users")
-    .update({ 
+    .update({
       stripe_customer_id: customer.id,
       updated_at: new Date().toISOString(),
     })
@@ -58,11 +60,14 @@ export async function getOrCreateCustomer(user: UserProfile): Promise<string> {
 /**
  * Update customer information in Stripe
  */
-export async function updateCustomer(customerId: string, updates: {
-  email?: string;
-  name?: string;
-  metadata?: Record<string, string>;
-}) {
+export async function updateCustomer(
+  customerId: string,
+  updates: {
+    email?: string;
+    name?: string;
+    metadata?: Record<string, string>;
+  }
+) {
   return await stripe.customers.update(customerId, {
     email: updates.email,
     name: updates.name,

@@ -10,13 +10,13 @@ export type { AuthUser, AuthState } from "./hooks";
 
 // Server-side exports
 export { createClient as createServerClient } from "./server";
-export { 
-  getSession, 
-  requireAuth, 
-  requireRole, 
+export {
+  getSession,
+  requireAuth,
+  requireRole,
   assertVerifiedEmail,
   hasRole,
-  updateLastLogin 
+  updateLastLogin,
 } from "./session";
 export type { SessionUser } from "./session";
 

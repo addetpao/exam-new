@@ -5,6 +5,7 @@
 ## Features Implemented
 
 ### ✅ Core Authentication
+
 - **Email/Password Authentication** with mandatory email verification
 - **OAuth Providers**: Google and Microsoft (Azure) integration
 - **Session Management**: Single active session enforcement
@@ -12,18 +13,21 @@
 - **Rate Limiting**: Protection against brute force attacks
 
 ### ✅ Role-Based Access Control (RBAC)
+
 - **User Roles**: `user`, `content_editor`, `admin` with hierarchical permissions
 - **Route Protection**: Middleware-based route guarding
 - **API Guards**: Server-side authentication and role validation
 - **Permission System**: Granular permission mapping per role
 
 ### ✅ Security Features
+
 - **Email Verification**: Required for all account access
 - **Single Session**: Enforced through server-side validation
 - **CSRF Protection**: Secure cookie handling and token management
 - **Session Expiration**: Automatic logout and refresh handling
 
 ### ✅ Developer Experience
+
 - **TypeScript**: Strict typing throughout
 - **Hooks**: React hooks for client-side auth management
 - **Server Helpers**: Utility functions for server-side auth
@@ -70,6 +74,7 @@ NEXT_PUBLIC_APP_URL=http://localhost:3000
 ### 2. Database Setup
 
 Ensure your Supabase database has the `users` table with:
+
 - RBAC roles: `user`, `content_editor`, `admin`
 - Email verification constraints
 - RLS policies enabled
@@ -79,10 +84,12 @@ Ensure your Supabase database has the `users` table with:
 Configure providers in Supabase Dashboard:
 
 **Google OAuth:**
+
 - Authorized redirect URIs: `${APP_URL}/auth/callback`
 - Scopes: `openid email profile`
 
 **Microsoft OAuth:**
+
 - Authorized redirect URIs: `${APP_URL}/auth/callback`
 - Provider: Azure AD
 
@@ -95,11 +102,11 @@ import { useAuth } from '@/lib/auth';
 
 function MyComponent() {
   const { user, loading, signOut, isEmailVerified } = useAuth();
-  
+
   if (loading) return <div>Loading...</div>;
   if (!user) return <div>Please sign in</div>;
   if (!isEmailVerified) return <div>Please verify your email</div>;
-  
+
   return (
     <div>
       <p>Welcome, {user.email}!</p>
@@ -130,7 +137,7 @@ export default async function AdminPage() {
 ### API Route Protection
 
 ```typescript
-import { guards } from '@/lib/auth';
+import { guards } from "@/lib/auth";
 
 // Require authentication
 export const GET = guards.requireAuth(async (request) => {
@@ -155,6 +162,7 @@ export const POST = guards.requireAdmin(async (request) => {
 ## Security Best Practices
 
 ### ✅ Implemented
+
 - Password strength requirements (8+ chars, mixed case, numbers)
 - Email verification mandatory for all features
 - Single active session per user
@@ -165,6 +173,7 @@ export const POST = guards.requireAdmin(async (request) => {
 - Role-based route protection
 
 ### 🔧 Configuration Required
+
 1. **Supabase Auth Settings**:
    - Enable email confirmations
    - Configure OAuth providers
@@ -182,17 +191,21 @@ export const POST = guards.requireAdmin(async (request) => {
 ## OAuth Redirect URIs
 
 ### Development
+
 - `http://localhost:3000/auth/callback`
 
 ### Preview/Staging
+
 - `https://examprep-platform-preview.vercel.app/auth/callback`
 
 ### Production
+
 - `https://examprep-platform.vercel.app/auth/callback`
 
 ## Analytics Events
 
 The system tracks these GA4 events:
+
 - `sign_up` - User registration
 - `login` - Successful authentication
 - `logout` - User sign out
@@ -205,6 +218,7 @@ The system tracks these GA4 events:
 ## Error Handling
 
 Comprehensive error mapping for user-friendly messages:
+
 - Invalid credentials → Clear instructions
 - Email not verified → Verification guidance
 - Session expired → Re-authentication prompt
@@ -226,6 +240,7 @@ Comprehensive error mapping for user-friendly messages:
 ## Support
 
 For authentication issues:
+
 1. Check Supabase project configuration
 2. Verify OAuth provider settings
 3. Confirm environment variables are set

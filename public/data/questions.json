@@ -1,0 +1,55 @@
+{
+  "questions": [
+    {
+      "id": "1",
+      "domain": "Mobile Devices",
+      "difficulty": "Easy",
+      "type": "multiple-choice",
+      "question": "Which of the following ports is commonly used to charge modern smartphones?",
+      "options": [
+        "USB-A",
+        "USB-C", 
+        "Lightning",
+        "All of the above"
+      ],
+      "correctAnswer": 3,
+      "rationale": "Modern smartphones typically use USB-C (Android) or Lightning (iOS) ports for charging. USB-A is the host connector typically found on chargers and computers. Both USB-C and Lightning are common charging ports on modern devices, making 'All of the above' the most accurate answer.",
+      "tags": ["hardware", "mobile", "charging"],
+      "examVersion": "220-1101"
+    },
+    {
+      "id": "2", 
+      "domain": "Networking",
+      "difficulty": "Medium",
+      "type": "multiple-choice",
+      "question": "A user reports that their wireless connection keeps dropping. Which of the following should be checked FIRST?",
+      "options": [
+        "Replace the wireless adapter",
+        "Check the distance from the router",
+        "Update the wireless drivers",
+        "Reset the network settings"
+      ],
+      "correctAnswer": 1,
+      "rationale": "When troubleshooting wireless connectivity issues, the first step should be to check the distance from the router. Physical proximity and obstacles can significantly affect wireless signal strength and stability. This is a quick and easy check before moving to more complex troubleshooting steps.",
+      "tags": ["networking", "troubleshooting", "wireless"],
+      "examVersion": "220-1101"
+    },
+    {
+      "id": "3",
+      "domain": "Hardware",
+      "difficulty": "Hard", 
+      "type": "multiple-choice",
+      "question": "A technician needs to upgrade a workstation's RAM from 8GB to 16GB. The system has two RAM slots, currently occupied by two 4GB modules. Which approach would be MOST cost-effective?",
+      "options": [
+        "Add two additional 4GB modules",
+        "Replace both modules with two 8GB modules", 
+        "Replace one module with an 8GB module",
+        "Replace both modules with one 16GB module"
+      ],
+      "correctAnswer": 1,
+      "rationale": "The most cost-effective approach is to replace both 4GB modules with two 8GB modules. This provides the desired 16GB total capacity while maintaining dual-channel memory configuration for optimal performance. Options A and D won't work as described, and option C would result in mismatched memory sizes which can cause performance issues.",
+      "tags": ["hardware", "memory", "upgrade"],
+      "examVersion": "220-1101"
+    }
+  ]
+}

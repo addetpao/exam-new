@@ -6,26 +6,28 @@ import { NextResponse, type NextRequest } from "next/server";
  * Handles session refresh and route protection
  */
 export async function middleware(request: NextRequest) {
+  // Graceful no-op if Supabase env is not configured, so public pages still load
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+  const supabaseAnon = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+  if (!supabaseUrl || !supabaseAnon) {
+    return NextResponse.next();
+  }
   let supabaseResponse = NextResponse.next({
     request,
   });
 
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll();
-        },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            supabaseResponse.cookies.set(name, value, options);
-          });
-        },
+  const supabase = createServerClient(supabaseUrl, supabaseAnon, {
+    cookies: {
+      getAll() {
+        return request.cookies.getAll();
       },
-    }
-  );
+      setAll(cookiesToSet) {
+        cookiesToSet.forEach(({ name, value, options }) => {
+          supabaseResponse.cookies.set(name, value, options);
+        });
+      },
+    },
+  });
 
   // Refresh session if expired
   const {
@@ -50,11 +52,7 @@ export async function middleware(request: NextRequest) {
   ];
 
   // Auth routes that should redirect if already authenticated
-  const authRoutes = [
-    "/auth/signin",
-    "/auth/signup",
-    "/auth/forgot-password",
-  ];
+  const authRoutes = ["/auth/signin", "/auth/signup", "/auth/forgot-password"];
 
   // Protected routes that require authentication
   const protectedRoutes = [
@@ -71,21 +69,19 @@ export async function middleware(request: NextRequest) {
   // Content editor routes
   const editorRoutes = ["/admin/content"];
 
-  const isPublicRoute = publicRoutes.some(route => 
-    pathname === route || pathname.startsWith(route + "/")
+  const isPublicRoute = publicRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + "/")
   );
-  
-  const isAuthRoute = authRoutes.some(route => 
-    pathname === route || pathname.startsWith(route + "/")
+
+  const isAuthRoute = authRoutes.some(
+    (route) => pathname === route || pathname.startsWith(route + "/")
   );
-  
-  const isProtectedRoute = protectedRoutes.some(route => 
+
+  const isProtectedRoute = protectedRoutes.some((route) =>
     pathname.startsWith(route)
   );
-  
-  const isAdminRoute = adminRoutes.some(route => 
-    pathname.startsWith(route)
-  );
+
+  const isAdminRoute = adminRoutes.some((route) => pathname.startsWith(route));
 
   // If user is authenticated and trying to access auth pages, redirect to dashboard
   if (session && isAuthRoute) {
@@ -134,13 +130,14 @@ export async function middleware(request: NextRequest) {
       }
 
       // Check content editor role for editor routes
-      if (pathname.startsWith("/admin/content") && 
-          !["admin", "content_editor"].includes(profile.app_role)) {
+      if (
+        pathname.startsWith("/admin/content") &&
+        !["admin", "content_editor"].includes(profile.app_role)
+      ) {
         const url = request.nextUrl.clone();
         url.pathname = "/unauthorized";
         return NextResponse.redirect(url);
       }
-
     } catch (error) {
       console.error("Middleware auth check failed:", error);
       const url = request.nextUrl.clone();

@@ -19,7 +19,9 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("Missing Supabase environment variables for storage operations");
+  throw new Error(
+    "Missing Supabase environment variables for storage operations"
+  );
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -35,11 +37,11 @@ const supabase = createClient(supabaseUrl, supabaseServiceKey, {
 export async function putAsset(options: UploadOptions): Promise<AssetMetadata> {
   try {
     const { bucket, path, file, metadata = {} } = options;
-    
+
     // Validate file size
     const fileSize = file instanceof File ? file.size : file.length;
     const sizeLimit = getSizeLimit(bucket);
-    
+
     if (fileSize > sizeLimit) {
       throw new StorageException(
         `File size ${fileSize} exceeds limit ${sizeLimit} for bucket ${bucket}`,
@@ -49,9 +51,12 @@ export async function putAsset(options: UploadOptions): Promise<AssetMetadata> {
     }
 
     // Validate file type
-    const mimeType = file instanceof File ? file.type as MimeType : metadata.contentType as MimeType;
+    const mimeType =
+      file instanceof File
+        ? (file.type as MimeType)
+        : (metadata.contentType as MimeType);
     const validationResult = await validateAsset(file, mimeType);
-    
+
     if (!validationResult.valid) {
       throw new StorageException(
         `Invalid file: ${validationResult.errors.join(", ")}`,
@@ -61,7 +66,8 @@ export async function putAsset(options: UploadOptions): Promise<AssetMetadata> {
     }
 
     // Generate checksum
-    const buffer = file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
+    const buffer =
+      file instanceof File ? Buffer.from(await file.arrayBuffer()) : file;
     const checksum = createHash("sha256").update(buffer).digest("hex");
 
     // Set appropriate cache control
@@ -127,14 +133,10 @@ export async function getSignedUrl(
   options: SignedUrlOptions = {}
 ): Promise<string> {
   try {
-    const {
-      expiresIn = 3600,
-      download = false,
-      transform,
-    } = options;
+    const { expiresIn = 3600, download = false, transform } = options;
 
     const signOptions: any = { expiresIn };
-    
+
     if (download) {
       signOptions.download = true;
     }
@@ -173,7 +175,10 @@ export async function getSignedUrl(
 /**
  * Check if a storage object exists
  */
-export async function exists(bucket: StorageBucket, path: string): Promise<boolean> {
+export async function exists(
+  bucket: StorageBucket,
+  path: string
+): Promise<boolean> {
   try {
     const { data, error } = await supabase.storage
       .from(bucket)
@@ -194,7 +199,10 @@ export async function exists(bucket: StorageBucket, path: string): Promise<boole
 /**
  * Delete a storage object
  */
-export async function deleteAsset(bucket: StorageBucket, path: string): Promise<void> {
+export async function deleteAsset(
+  bucket: StorageBucket,
+  path: string
+): Promise<void> {
   try {
     // Safety check: prevent deletion of published assets
     if (bucket === "pbq-assets" && path.includes("/published/")) {
@@ -205,9 +213,7 @@ export async function deleteAsset(bucket: StorageBucket, path: string): Promise<
       );
     }
 
-    const { error } = await supabase.storage
-      .from(bucket)
-      .remove([path]);
+    const { error } = await supabase.storage.from(bucket).remove([path]);
 
     if (error) {
       throw new StorageError(
@@ -279,9 +285,17 @@ export async function validateAsset(
   try {
     // Basic MIME type validation
     const allowedTypes: MimeType[] = [
-      "image/png", "image/jpeg", "image/gif", "image/webp", "image/svg+xml",
-      "application/json", "text/plain", "text/csv", "application/pdf",
-      "video/mp4", "application/zip"
+      "image/png",
+      "image/jpeg",
+      "image/gif",
+      "image/webp",
+      "image/svg+xml",
+      "application/json",
+      "text/plain",
+      "text/csv",
+      "application/pdf",
+      "video/mp4",
+      "application/zip",
     ];
 
     if (!allowedTypes.includes(mimeType)) {
@@ -308,9 +322,8 @@ export async function validateAsset(
     // JSON validation for config files
     if (mimeType === "application/json") {
       try {
-        const content = file instanceof File 
-          ? await file.text() 
-          : file.toString("utf8");
+        const content =
+          file instanceof File ? await file.text() : file.toString("utf8");
         JSON.parse(content);
       } catch {
         errors.push("Invalid JSON format");
@@ -329,7 +342,9 @@ export async function validateAsset(
   } catch (error) {
     return {
       valid: false,
-      errors: [`Validation error: ${error instanceof Error ? error.message : "Unknown error"}`],
+      errors: [
+        `Validation error: ${error instanceof Error ? error.message : "Unknown error"}`,
+      ],
       warnings,
     };
   }
@@ -346,12 +361,18 @@ export function generateVersionedPath(
   const timestamp = Date.now();
   const extension = fileName.split(".").pop();
   const name = fileName.replace(`.${extension}`, "");
-  
+
   if (version === "published") {
-    return FOLDER_STRUCTURE.PBQ_ASSETS.PUBLISHED(questionId) + `/${name}.${extension}`;
+    return (
+      FOLDER_STRUCTURE.PBQ_ASSETS.PUBLISHED(questionId) +
+      `/${name}.${extension}`
+    );
   }
-  
-  return FOLDER_STRUCTURE.PBQ_ASSETS.QUESTION(questionId, version) + `/${name}_${timestamp}.${extension}`;
+
+  return (
+    FOLDER_STRUCTURE.PBQ_ASSETS.QUESTION(questionId, version) +
+    `/${name}_${timestamp}.${extension}`
+  );
 }
 
 /**
@@ -361,11 +382,11 @@ function getCacheControl(bucket: StorageBucket, path: string): string {
   if (bucket === "temp-uploads") {
     return CACHE_CONTROL.PRIVATE_TEMP;
   }
-  
+
   if (bucket === "pbq-assets" && path.includes("/published/")) {
     return CACHE_CONTROL.PUBLIC_ASSETS;
   }
-  
+
   return CACHE_CONTROL.CONTENT_MEDIA;
 }
 

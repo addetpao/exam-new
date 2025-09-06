@@ -13,7 +13,7 @@ export async function withAuth<T = any>(
 ): Promise<NextResponse<T>> {
   try {
     const response = NextResponse.next();
-    
+
     const supabase = createServerClient<Database>(
       process.env.NEXT_PUBLIC_SUPABASE_URL!,
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -60,24 +60,24 @@ export async function withAuth<T = any>(
     // Check email verification
     if (!profile.email_confirmed) {
       return NextResponse.json(
-        { 
+        {
           error: "Email verification required",
-          code: "EMAIL_NOT_VERIFIED" 
+          code: "EMAIL_NOT_VERIFIED",
         },
         { status: 403 }
       );
     }
 
     // Attach user data to request
-    const requestWithUser = request as NextRequest & { 
-      user: { 
+    const requestWithUser = request as NextRequest & {
+      user: {
         id: string;
         email: string;
         profile: typeof profile;
         session: typeof session;
-      } 
+      };
     };
-    
+
     requestWithUser.user = {
       id: session.user.id,
       email: session.user.email!,
@@ -155,7 +155,7 @@ export async function withRole<T = any>(
 ): Promise<NextResponse<T>> {
   return withAuth(request, async (authenticatedRequest) => {
     const userRole = authenticatedRequest.user.profile.app_role;
-    
+
     const roleHierarchy = {
       admin: 3,
       content_editor: 2,
@@ -167,10 +167,10 @@ export async function withRole<T = any>(
 
     if (userLevel < requiredLevel) {
       return NextResponse.json(
-        { 
+        {
           error: "Insufficient permissions",
           required_role: requiredRole,
-          user_role: userRole 
+          user_role: userRole,
         },
         { status: 403 }
       );
@@ -187,28 +187,48 @@ export const guards = {
   /**
    * Require any authenticated user
    */
-  requireAuth: <T = any>(
-    handler: (request: NextRequest & { user: any }) => Promise<NextResponse<T>>
-  ) => (request: NextRequest) => withAuth(request, handler),
+  requireAuth:
+    <T = any>(
+      handler: (
+        request: NextRequest & { user: any }
+      ) => Promise<NextResponse<T>>
+    ) =>
+    (request: NextRequest) =>
+      withAuth(request, handler),
 
   /**
    * Require admin role
    */
-  requireAdmin: <T = any>(
-    handler: (request: NextRequest & { user: any }) => Promise<NextResponse<T>>
-  ) => (request: NextRequest) => withRole(request, "admin", handler),
+  requireAdmin:
+    <T = any>(
+      handler: (
+        request: NextRequest & { user: any }
+      ) => Promise<NextResponse<T>>
+    ) =>
+    (request: NextRequest) =>
+      withRole(request, "admin", handler),
 
   /**
    * Require content editor or higher
    */
-  requireContentEditor: <T = any>(
-    handler: (request: NextRequest & { user: any }) => Promise<NextResponse<T>>
-  ) => (request: NextRequest) => withRole(request, "content_editor", handler),
+  requireContentEditor:
+    <T = any>(
+      handler: (
+        request: NextRequest & { user: any }
+      ) => Promise<NextResponse<T>>
+    ) =>
+    (request: NextRequest) =>
+      withRole(request, "content_editor", handler),
 
   /**
    * Require user or higher (basically just verified email)
    */
-  requireUser: <T = any>(
-    handler: (request: NextRequest & { user: any }) => Promise<NextResponse<T>>
-  ) => (request: NextRequest) => withRole(request, "user", handler),
+  requireUser:
+    <T = any>(
+      handler: (
+        request: NextRequest & { user: any }
+      ) => Promise<NextResponse<T>>
+    ) =>
+    (request: NextRequest) =>
+      withRole(request, "user", handler),
 };

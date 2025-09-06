@@ -10,7 +10,9 @@ const supabaseUrl = process.env.SUPABASE_URL!;
 const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
 
 if (!supabaseUrl || !supabaseServiceKey) {
-  throw new Error("Missing Supabase environment variables for cleanup operations");
+  throw new Error(
+    "Missing Supabase environment variables for cleanup operations"
+  );
 }
 
 const supabase = createClient(supabaseUrl, supabaseServiceKey, {
@@ -51,14 +53,15 @@ export async function cleanupExpiredTempUploads(): Promise<CleanupJobResult> {
       try {
         // Check if file is older than 24 hours
         const fileCreatedAt = new Date(file.created_at);
-        
+
         if (fileCreatedAt < twentyFourHoursAgo) {
           await deleteAsset("temp-uploads", file.name);
           result.deleted++;
           console.log(`Deleted expired temp upload: ${file.name}`);
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         result.errors.push({
           path: file.name,
           error: errorMessage,
@@ -67,10 +70,12 @@ export async function cleanupExpiredTempUploads(): Promise<CleanupJobResult> {
       }
     }
 
-    console.log(`Cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`);
-
+    console.log(
+      `Cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`
+    );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     result.errors.push({
       path: "temp-uploads",
       error: `Failed to list temp uploads: ${errorMessage}`,
@@ -85,7 +90,9 @@ export async function cleanupExpiredTempUploads(): Promise<CleanupJobResult> {
 /**
  * Clean up orphaned assets (assets without corresponding database records)
  */
-export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<CleanupJobResult> {
+export async function cleanupOrphanedAssets(
+  bucket: StorageBucket
+): Promise<CleanupJobResult> {
   const startTime = Date.now();
   const result: CleanupJobResult = {
     processed: 0,
@@ -122,7 +129,7 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
         return result;
       }
 
-      const questionIds = new Set(questions?.map(q => q.id) || []);
+      const questionIds = new Set(questions?.map((q) => q.id) || []);
 
       for (const file of files) {
         try {
@@ -130,12 +137,12 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
           const pathSegments = file.name.split("/");
           if (pathSegments.length >= 2 && pathSegments[0] === "pbq") {
             const questionId = pathSegments[1];
-            
+
             // Skip published assets (never delete published content)
             if (file.name.includes("/published/")) {
               continue;
             }
-            
+
             // If question doesn't exist, mark as orphaned
             if (!questionIds.has(questionId)) {
               await deleteAsset(bucket, file.name);
@@ -144,7 +151,8 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
             }
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
           result.errors.push({
             path: file.name,
             error: errorMessage,
@@ -169,15 +177,19 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
         return result;
       }
 
-      const postIds = new Set(posts?.map(p => p.id) || []);
+      const postIds = new Set(posts?.map((p) => p.id) || []);
 
       for (const file of files) {
         try {
           // Extract post ID from path (format: content/posts/{postId}/...)
           const pathSegments = file.name.split("/");
-          if (pathSegments.length >= 3 && pathSegments[0] === "content" && pathSegments[1] === "posts") {
+          if (
+            pathSegments.length >= 3 &&
+            pathSegments[0] === "content" &&
+            pathSegments[1] === "posts"
+          ) {
             const postId = pathSegments[2];
-            
+
             // If post doesn't exist, mark as orphaned
             if (!postIds.has(postId)) {
               await deleteAsset(bucket, file.name);
@@ -186,7 +198,8 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
             }
           }
         } catch (error) {
-          const errorMessage = error instanceof Error ? error.message : "Unknown error";
+          const errorMessage =
+            error instanceof Error ? error.message : "Unknown error";
           result.errors.push({
             path: file.name,
             error: errorMessage,
@@ -196,10 +209,12 @@ export async function cleanupOrphanedAssets(bucket: StorageBucket): Promise<Clea
       }
     }
 
-    console.log(`Orphaned assets cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`);
-
+    console.log(
+      `Orphaned assets cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`
+    );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     result.errors.push({
       path: bucket,
       error: `Orphaned assets cleanup failed: ${errorMessage}`,
@@ -228,25 +243,28 @@ export async function cleanupOldDraftVersions(): Promise<CleanupJobResult> {
 
     // Get all draft folders in PBQ assets
     const files = await listAssets("pbq-assets", "pbq", 1000);
-    
+
     // Group files by question ID
-    const questionGroups = new Map<string, Array<{ name: string; created_at: string }>>();
-    
+    const questionGroups = new Map<
+      string,
+      Array<{ name: string; created_at: string }>
+    >();
+
     for (const file of files) {
       const pathSegments = file.name.split("/");
       if (pathSegments.length >= 3 && pathSegments[0] === "pbq") {
         const questionId = pathSegments[1];
         const version = pathSegments[2];
-        
+
         // Skip published versions
         if (version === "published") {
           continue;
         }
-        
+
         if (!questionGroups.has(questionId)) {
           questionGroups.set(questionId, []);
         }
-        
+
         questionGroups.get(questionId)!.push({
           name: file.name,
           created_at: file.created_at,
@@ -254,7 +272,10 @@ export async function cleanupOldDraftVersions(): Promise<CleanupJobResult> {
       }
     }
 
-    result.processed = Array.from(questionGroups.values()).reduce((sum, files) => sum + files.length, 0);
+    result.processed = Array.from(questionGroups.values()).reduce(
+      (sum, files) => sum + files.length,
+      0
+    );
 
     const thirtyDaysAgo = new Date(Date.now() - 30 * 24 * 60 * 60 * 1000);
 
@@ -262,12 +283,15 @@ export async function cleanupOldDraftVersions(): Promise<CleanupJobResult> {
     for (const [questionId, questionFiles] of questionGroups) {
       try {
         // Sort by creation date (newest first)
-        questionFiles.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
-        
+        questionFiles.sort(
+          (a, b) =>
+            new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
+        );
+
         // Keep the latest 5 drafts, delete older ones if they're over 30 days old
         const filesToDelete = questionFiles
           .slice(5) // Skip the latest 5
-          .filter(file => new Date(file.created_at) < thirtyDaysAgo);
+          .filter((file) => new Date(file.created_at) < thirtyDaysAgo);
 
         for (const file of filesToDelete) {
           await deleteAsset("pbq-assets", file.name);
@@ -275,19 +299,24 @@ export async function cleanupOldDraftVersions(): Promise<CleanupJobResult> {
           console.log(`Deleted old draft version: ${file.name}`);
         }
       } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : "Unknown error";
+        const errorMessage =
+          error instanceof Error ? error.message : "Unknown error";
         result.errors.push({
           path: questionId,
           error: errorMessage,
         });
-        console.error(`Failed to cleanup drafts for question ${questionId}: ${errorMessage}`);
+        console.error(
+          `Failed to cleanup drafts for question ${questionId}: ${errorMessage}`
+        );
       }
     }
 
-    console.log(`Draft versions cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`);
-
+    console.log(
+      `Draft versions cleanup completed: ${result.deleted} files deleted, ${result.errors.length} errors`
+    );
   } catch (error) {
-    const errorMessage = error instanceof Error ? error.message : "Unknown error";
+    const errorMessage =
+      error instanceof Error ? error.message : "Unknown error";
     result.errors.push({
       path: "pbq-assets",
       error: `Draft versions cleanup failed: ${errorMessage}`,
@@ -313,7 +342,7 @@ export async function runAllCleanupJobs(): Promise<{
   totalDuration: number;
 }> {
   const startTime = Date.now();
-  
+
   console.log("Starting comprehensive storage cleanup...");
 
   const results = {
@@ -324,8 +353,14 @@ export async function runAllCleanupJobs(): Promise<{
   };
 
   const totalDuration = Date.now() - startTime;
-  const totalDeleted = Object.values(results).reduce((sum, result) => sum + result.deleted, 0);
-  const totalErrors = Object.values(results).reduce((sum, result) => sum + result.errors.length, 0);
+  const totalDeleted = Object.values(results).reduce(
+    (sum, result) => sum + result.deleted,
+    0
+  );
+  const totalErrors = Object.values(results).reduce(
+    (sum, result) => sum + result.errors.length,
+    0
+  );
   const success = totalErrors === 0;
 
   console.log(`Storage cleanup completed in ${totalDuration}ms:`);
@@ -355,7 +390,8 @@ export async function logCleanupResult(
       processed: result.processed,
       deleted: result.deleted,
       errors_count: result.errors.length,
-      errors_details: result.errors.length > 0 ? JSON.stringify(result.errors) : null,
+      errors_details:
+        result.errors.length > 0 ? JSON.stringify(result.errors) : null,
       duration_ms: result.duration,
       created_at: new Date().toISOString(),
     });

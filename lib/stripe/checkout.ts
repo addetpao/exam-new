@@ -1,4 +1,9 @@
-import { stripe, getPlanByPriceId, SubscriptionPlan, getPlanConfig } from "./config";
+import {
+  stripe,
+  getPlanByPriceId,
+  SubscriptionPlan,
+  getPlanConfig,
+} from "./config";
 import { getOrCreateCustomer, UserProfile } from "./customers";
 
 export interface CheckoutSessionOptions {
@@ -16,7 +21,6 @@ export async function createCheckoutSession(
   user: UserProfile,
   options: CheckoutSessionOptions
 ): Promise<string> {
-  
   // Validate price ID
   const planEntry = getPlanByPriceId(options.priceId);
   if (!planEntry) {

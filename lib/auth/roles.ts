@@ -23,25 +23,14 @@ export const ROLE_PERMISSIONS = {
     "access_admin_panel",
     "manage_subscriptions",
   ],
-  content_editor: [
-    "manage_content",
-    "manage_exams",
-    "view_basic_analytics",
-  ],
-  user: [
-    "take_exams",
-    "view_progress",
-    "manage_profile",
-  ],
+  content_editor: ["manage_content", "manage_exams", "view_basic_analytics"],
+  user: ["take_exams", "view_progress", "manage_profile"],
 } as const;
 
 /**
  * Check if a role has a specific permission
  */
-export function hasPermission(
-  userRole: UserRole,
-  permission: string
-): boolean {
+export function hasPermission(userRole: UserRole, permission: string): boolean {
   const rolePermissions = ROLE_PERMISSIONS[userRole] || [];
   return rolePermissions.includes(permission as any);
 }
@@ -55,7 +44,7 @@ export function meetsRoleRequirement(
 ): boolean {
   const userLevel = ROLE_HIERARCHY[userRole] || 0;
   const requiredLevel = ROLE_HIERARCHY[requiredRole] || 0;
-  
+
   return userLevel >= requiredLevel;
 }
 
@@ -64,7 +53,7 @@ export function meetsRoleRequirement(
  */
 export function getEqualOrHigherRoles(role: UserRole): UserRole[] {
   const roleLevel = ROLE_HIERARCHY[role];
-  
+
   return (Object.entries(ROLE_HIERARCHY) as [UserRole, number][])
     .filter(([_, level]) => level >= roleLevel)
     .map(([roleName]) => roleName);
@@ -79,7 +68,7 @@ export function getRoleDisplayName(role: UserRole): string {
     content_editor: "Content Editor",
     user: "User",
   };
-  
+
   return displayNames[role] || role;
 }
 
@@ -92,7 +81,7 @@ export function getRoleDescription(role: UserRole): string {
     content_editor: "Can create and manage exam content and questions",
     user: "Can take exams and track progress",
   };
-  
+
   return descriptions[role] || "";
 }
 

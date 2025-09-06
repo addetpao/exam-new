@@ -14,7 +14,9 @@ export interface UserEntitlements {
 /**
  * Get user's current entitlements based on subscription
  */
-export async function getUserEntitlements(userId: string): Promise<UserEntitlements> {
+export async function getUserEntitlements(
+  userId: string
+): Promise<UserEntitlements> {
   const subscription = await getUserSubscription(userId);
 
   if (!subscription) {
@@ -25,7 +27,10 @@ export async function getUserEntitlements(userId: string): Promise<UserEntitleme
     };
   }
 
-  const hasActive = isSubscriptionActive(subscription.end_at, subscription.status);
+  const hasActive = isSubscriptionActive(
+    subscription.end_at,
+    subscription.status
+  );
 
   return {
     hasActiveSubscription: hasActive,
@@ -53,16 +58,16 @@ export async function canTakeSelfAssessment(userId: string): Promise<{
   }
 
   if (entitlements.selfAssessmentRemaining <= 0) {
-    return { 
-      allowed: false, 
-      reason: "No self-assessments remaining", 
-      remaining: 0 
+    return {
+      allowed: false,
+      reason: "No self-assessments remaining",
+      remaining: 0,
     };
   }
 
-  return { 
-    allowed: true, 
-    remaining: entitlements.selfAssessmentRemaining 
+  return {
+    allowed: true,
+    remaining: entitlements.selfAssessmentRemaining,
   };
 }
 
@@ -81,16 +86,16 @@ export async function canTakePracticeExam(userId: string): Promise<{
   }
 
   if (entitlements.examAttemptsRemaining <= 0) {
-    return { 
-      allowed: false, 
-      reason: "No exam attempts remaining", 
-      remaining: 0 
+    return {
+      allowed: false,
+      reason: "No exam attempts remaining",
+      remaining: 0,
     };
   }
 
-  return { 
-    allowed: true, 
-    remaining: entitlements.examAttemptsRemaining 
+  return {
+    allowed: true,
+    remaining: entitlements.examAttemptsRemaining,
   };
 }
 
@@ -123,9 +128,9 @@ export async function consumeSelfAssessment(userId: string): Promise<{
     return { success: false, error: "Failed to update subscription" };
   }
 
-  return { 
-    success: true, 
-    remaining: data.self_assessment_remaining 
+  return {
+    success: true,
+    remaining: data.self_assessment_remaining,
   };
 }
 
@@ -158,9 +163,9 @@ export async function consumePracticeExam(userId: string): Promise<{
     return { success: false, error: "Failed to update subscription" };
   }
 
-  return { 
-    success: true, 
-    remaining: data.exam_attempts_remaining 
+  return {
+    success: true,
+    remaining: data.exam_attempts_remaining,
   };
 }
 

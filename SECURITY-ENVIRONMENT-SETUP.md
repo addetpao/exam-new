@@ -4,9 +4,10 @@
 
 **DATE**: 2025-09-05  
 **SEVERITY**: CRITICAL  
-**STATUS**: RESOLVED  
+**STATUS**: RESOLVED
 
 ### Incident Summary
+
 - **EXPOSED TOKEN**: Supabase access token `sbp_488a01e3237668140c8f71236b3f1d4f94920596` was hardcoded in:
   - `supabasemcp-config.json`
   - `.claude/settings.local.json`
@@ -56,12 +57,14 @@ NEXT_PUBLIC_GA_MEASUREMENT_ID=G-XXXXXXXXXX
 ### Security Protocols
 
 #### For Development
+
 1. Always use test/sandbox keys for development
 2. Never commit actual secrets to version control
 3. Use `.env.local` for sensitive values (already in .gitignore)
 4. Rotate tokens immediately if exposed
 
 #### For Production (Vercel)
+
 1. Use Vercel Environment Variables dashboard
 2. Enable "Sensitive" flag for all secret values
 3. Use production keys only in production environment
@@ -86,6 +89,7 @@ The MCP server configurations now use environment variable substitution:
 ### Monitoring and Alerts
 
 Set up monitoring for:
+
 - Unauthorized access attempts
 - Suspicious API usage patterns
 - Failed authentication events
@@ -94,6 +98,7 @@ Set up monitoring for:
 ### Emergency Response
 
 If secrets are exposed again:
+
 1. **IMMEDIATE**: Rotate all affected tokens/keys
 2. **WITHIN 1 HOUR**: Update all environments
 3. **WITHIN 24 HOURS**: Audit access logs
@@ -102,6 +107,7 @@ If secrets are exposed again:
 ### Contact Security Shield Agent
 
 For security-related issues, coordinate with Security Shield agent using:
+
 ```
 🎯 Security Shield Agent: [SECURITY ISSUE DESCRIPTION]
 ```

@@ -14,7 +14,9 @@ export const SessionResponseSchema = z.object({
     id: z.string().uuid(),
     email: z.string().email(),
     role: z.enum(["user", "admin"]),
-    subscription_status: z.enum(["free", "trial", "premium", "cancelled"]).nullable(),
+    subscription_status: z
+      .enum(["free", "trial", "premium", "cancelled"])
+      .nullable(),
     subscription_tier: z.enum(["basic", "premium"]).nullable(),
     trial_ends_at: z.string().datetime().nullable(),
     created_at: z.string().datetime(),
@@ -58,11 +60,16 @@ export const QuestionCreateSchema = z.object({
   question_type: z.enum(["multiple_choice", "pbq"]),
   difficulty: z.enum(["easy", "medium", "hard"]),
   explanation: z.string().min(10),
-  choices: z.array(z.object({
-    choice_text: z.string().min(1),
-    is_correct: z.boolean(),
-    explanation: z.string().optional(),
-  })).min(2).max(6),
+  choices: z
+    .array(
+      z.object({
+        choice_text: z.string().min(1),
+        is_correct: z.boolean(),
+        explanation: z.string().optional(),
+      })
+    )
+    .min(2)
+    .max(6),
   pbq_config: z.record(z.any()).optional(),
   status: z.enum(["draft", "published"]).default("draft"),
 });

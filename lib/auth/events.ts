@@ -15,9 +15,9 @@ declare global {
 /**
  * Analytics event types for authentication
  */
-export type AuthEvent = 
+export type AuthEvent =
   | "sign_up"
-  | "login" 
+  | "login"
   | "logout"
   | "email_verified"
   | "password_reset_request"
@@ -46,7 +46,7 @@ export function trackAuthEvent(
     };
 
     window.gtag("event", event, eventData);
-    
+
     // Also track as a custom event for better analytics
     window.gtag("event", "auth_action", {
       custom_parameter: event,
@@ -60,7 +60,9 @@ export function trackAuthEvent(
 /**
  * Track sign up events
  */
-export function trackSignUp(method: "email" | "google" | "microsoft" = "email") {
+export function trackSignUp(
+  method: "email" | "google" | "microsoft" = "email"
+) {
   trackAuthEvent("sign_up", {
     method,
     timestamp: new Date().toISOString(),
@@ -80,7 +82,9 @@ export function trackLogin(method: "email" | "google" | "microsoft" = "email") {
 /**
  * Track logout events
  */
-export function trackLogout(reason?: "user_initiated" | "session_expired" | "forced") {
+export function trackLogout(
+  reason?: "user_initiated" | "session_expired" | "forced"
+) {
   trackAuthEvent("logout", {
     reason: reason || "user_initiated",
     timestamp: new Date().toISOString(),

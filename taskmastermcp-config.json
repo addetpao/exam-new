@@ -2,12 +2,7 @@
   "mcpServers": {
     "taskmaster": {
       "command": "cmd",
-      "args": [
-        "/c",
-        "npx",
-        "-y",
-        "task-master-ai@latest"
-      ]
+      "args": ["/c", "npx", "-y", "task-master-ai@latest"]
     }
   }
 }
