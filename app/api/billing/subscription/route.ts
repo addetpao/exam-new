@@ -1,8 +1,16 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { createSuccessResponse, createErrorResponse, handleAPIError } from "@/lib/server/utils/api-response";
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  handleAPIError,
+} from "@/lib/server/utils/api-response";
 import { requireAuth } from "@/lib/auth/guard";
-import { getUserSubscription, cancelSubscription, resumeSubscription } from "@/lib/stripe";
+import {
+  getUserSubscription,
+  cancelSubscription,
+  resumeSubscription,
+} from "@/lib/stripe";
 import { getUserEntitlements } from "@/lib/server/payments";
 
 // Request validation schema for subscription updates
@@ -19,7 +27,12 @@ export async function GET(request: NextRequest) {
     // Require authentication
     const authResult = await requireAuth(request);
     if (!authResult.success || !authResult.user) {
-      return createErrorResponse("UNAUTHORIZED", "Authentication required", null, 401);
+      return createErrorResponse(
+        "UNAUTHORIZED",
+        "Authentication required",
+        null,
+        401
+      );
     }
 
     const userId = authResult.user.id;
@@ -29,16 +42,18 @@ export async function GET(request: NextRequest) {
     const entitlements = await getUserEntitlements(userId);
 
     return createSuccessResponse({
-      subscription: subscription ? {
-        id: subscription.stripe_subscription_id,
-        status: subscription.status,
-        planKey: subscription.plan_key,
-        planDays: subscription.plan_days,
-        startAt: subscription.start_at,
-        endAt: subscription.end_at,
-        createdAt: subscription.created_at,
-        updatedAt: subscription.updated_at,
-      } : null,
+      subscription: subscription
+        ? {
+            id: subscription.stripe_subscription_id,
+            status: subscription.status,
+            planKey: subscription.plan_key,
+            planDays: subscription.plan_days,
+            startAt: subscription.start_at,
+            endAt: subscription.end_at,
+            createdAt: subscription.created_at,
+            updatedAt: subscription.updated_at,
+          }
+        : null,
       entitlements: {
         hasActiveSubscription: entitlements.hasActiveSubscription,
         selfAssessmentRemaining: entitlements.selfAssessmentRemaining,
@@ -47,7 +62,6 @@ export async function GET(request: NextRequest) {
         subscriptionStatus: entitlements.subscriptionStatus,
       },
     });
-
   } catch (error) {
     console.error("Subscription fetch error:", error);
     return handleAPIError(error);
@@ -62,7 +76,12 @@ export async function PUT(request: NextRequest) {
     // Require authentication
     const authResult = await requireAuth(request);
     if (!authResult.success || !authResult.user) {
-      return createErrorResponse("UNAUTHORIZED", "Authentication required", null, 401);
+      return createErrorResponse(
+        "UNAUTHORIZED",
+        "Authentication required",
+        null,
+        401
+      );
     }
 
     const userId = authResult.user.id;
@@ -70,12 +89,12 @@ export async function PUT(request: NextRequest) {
     // Parse and validate request body
     const body = await request.json();
     const validation = subscriptionUpdateSchema.safeParse(body);
-    
+
     if (!validation.success) {
       return createErrorResponse(
-        "BAD_REQUEST", 
-        "Invalid request data", 
-        validation.error.errors, 
+        "BAD_REQUEST",
+        "Invalid request data",
+        validation.error.errors,
         400
       );
     }
@@ -85,12 +104,20 @@ export async function PUT(request: NextRequest) {
     // Get user's subscription
     const subscription = await getUserSubscription(userId);
     if (!subscription) {
-      return createErrorResponse("NOT_FOUND", "No active subscription found", null, 404);
+      return createErrorResponse(
+        "NOT_FOUND",
+        "No active subscription found",
+        null,
+        404
+      );
     }
 
     let result;
     if (action === "cancel") {
-      result = await cancelSubscription(subscription.stripe_subscription_id, cancelAtPeriodEnd);
+      result = await cancelSubscription(
+        subscription.stripe_subscription_id,
+        cancelAtPeriodEnd
+      );
     } else if (action === "resume") {
       result = await resumeSubscription(subscription.stripe_subscription_id);
     }
@@ -102,7 +129,6 @@ export async function PUT(request: NextRequest) {
       cancelAtPeriodEnd: result?.cancel_at_period_end,
       message: `Subscription ${action} successful`,
     });
-
   } catch (error) {
     console.error("Subscription update error:", error);
     return handleAPIError(error);
@@ -111,9 +137,19 @@ export async function PUT(request: NextRequest) {
 
 // Only allow GET and PUT requests
 export async function POST() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "POST method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "POST method not allowed",
+    null,
+    405
+  );
 }
 
 export async function DELETE() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "DELETE method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "DELETE method not allowed",
+    null,
+    405
+  );
 }
