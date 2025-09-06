@@ -14,12 +14,14 @@ const signedUrlSchema = z.object({
   path: z.string().min(1, "Path is required"),
   expiresIn: z.number().min(60).max(86400).optional().default(3600), // 1 minute to 24 hours
   download: z.boolean().optional().default(false),
-  transform: z.object({
-    width: z.number().positive().optional(),
-    height: z.number().positive().optional(),
-    format: z.enum(["webp", "png", "jpeg"]).optional(),
-    quality: z.number().min(1).max(100).optional(),
-  }).optional(),
+  transform: z
+    .object({
+      width: z.number().positive().optional(),
+      height: z.number().positive().optional(),
+      format: z.enum(["webp", "png", "jpeg"]).optional(),
+      quality: z.number().min(1).max(100).optional(),
+    })
+    .optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -34,10 +36,7 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Parse request body
@@ -46,9 +45,9 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { 
+        {
           error: "Invalid request parameters",
-          details: validation.error.errors
+          details: validation.error.errors,
         },
         { status: 400 }
       );
@@ -59,10 +58,7 @@ export async function POST(request: NextRequest) {
     // Check if the object exists
     const objectExists = await exists(bucket, path);
     if (!objectExists) {
-      return NextResponse.json(
-        { error: "Object not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "Object not found" }, { status: 404 });
     }
 
     // Permission checks for different buckets
@@ -70,7 +66,7 @@ export async function POST(request: NextRequest) {
       // Users can only access their own temp uploads
       const userId = user.id;
       const pathSegments = path.split("/");
-      
+
       if (pathSegments[0] !== userId) {
         return NextResponse.json(
           { error: "Access denied to this temp upload" },
@@ -86,14 +82,14 @@ export async function POST(request: NextRequest) {
         .single();
 
       if (userError || !userData) {
-        return NextResponse.json(
-          { error: "User not found" },
-          { status: 404 }
-        );
+        return NextResponse.json({ error: "User not found" }, { status: 404 });
       }
 
       // For draft/non-published assets, require content editor or admin role
-      if (!path.includes("/published/") && !["content_editor", "admin"].includes((userData as any).app_role)) {
+      if (
+        !path.includes("/published/") &&
+        !["content_editor", "admin"].includes((userData as any).app_role)
+      ) {
         return NextResponse.json(
           { error: "Insufficient permissions for this asset" },
           { status: 403 }
@@ -109,19 +105,22 @@ export async function POST(request: NextRequest) {
     });
 
     // Log the signed URL generation for auditing (optional)
-    await supabase.from("storage_access_log").insert({
-      user_id: user.id,
-      bucket,
-      path,
-      action: "signed_url_generated",
-      expires_in: expiresIn,
-      download_requested: download,
-      transform_options: transform ? JSON.stringify(transform) : null,
-      created_at: new Date().toISOString(),
-    }).catch(() => {
-      // Ignore logging errors - don't fail the request
-      console.warn("Failed to log signed URL generation");
-    });
+    await supabase
+      .from("storage_access_log")
+      .insert({
+        user_id: user.id,
+        bucket,
+        path,
+        action: "signed_url_generated",
+        expires_in: expiresIn,
+        download_requested: download,
+        transform_options: transform ? JSON.stringify(transform) : null,
+        created_at: new Date().toISOString(),
+      })
+      .catch(() => {
+        // Ignore logging errors - don't fail the request
+        console.warn("Failed to log signed URL generation");
+      });
 
     return NextResponse.json({
       success: true,
@@ -129,10 +128,9 @@ export async function POST(request: NextRequest) {
       expiresIn,
       expiresAt: new Date(Date.now() + expiresIn * 1000).toISOString(),
     });
-
   } catch (error) {
     console.error("Signed URL generation error:", error);
-    
+
     if (error instanceof Error && "statusCode" in error) {
       return NextResponse.json(
         { error: error.message },
