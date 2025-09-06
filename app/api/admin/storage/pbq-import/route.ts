@@ -28,27 +28,21 @@ export async function POST(request: NextRequest) {
     } = await supabase.auth.getUser();
 
     if (authError || !user) {
-      return NextResponse.json(
-        { error: "Unauthorized" },
-        { status: 401 }
-      );
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
     // Check user role - only admins can import PBQ packages
     const { data: userData, error: userError } = await supabase
       .from("users")
-      .select("role")
+      .select("app_role")
       .eq("id", user.id)
       .single();
 
     if (userError || !userData) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    if (userData.role !== "admin") {
+    if ((userData as any).app_role !== "admin") {
       return NextResponse.json(
         { error: "Only admins can import PBQ packages" },
         { status: 403 }
@@ -82,9 +76,9 @@ export async function POST(request: NextRequest) {
 
     if (!validation.success) {
       return NextResponse.json(
-        { 
+        {
           error: "Invalid request parameters",
-          details: validation.error.errors
+          details: validation.error.issues,
         },
         { status: 400 }
       );
@@ -94,7 +88,7 @@ export async function POST(request: NextRequest) {
 
     // Convert package file to buffer and create import package
     const packageBuffer = Buffer.from(await packageFile.arrayBuffer());
-    
+
     // For now, we'll expect individual files in the form data
     // In a real implementation, this would extract from a ZIP file
     const files: Array<{
@@ -105,12 +99,12 @@ export async function POST(request: NextRequest) {
     }> = [];
 
     // Extract individual files from form data
-    for (const [key, value] of formData.entries()) {
+    for (const [key, value] of Array.from(formData.entries())) {
       if (key.startsWith("file_") && value instanceof File) {
         const fileName = value.name;
         const filePath = key.replace("file_", "");
         const content = Buffer.from(await value.arrayBuffer());
-        
+
         files.push({
           name: fileName,
           path: filePath,
@@ -140,15 +134,11 @@ export async function POST(request: NextRequest) {
     };
 
     // Execute the import
-    const importResult = await importPBQPackage(
-      importPackage,
-      user.id,
-      {
-        validateOnly: validatedData.validateOnly,
-        allowOverwrite: validatedData.allowOverwrite,
-        publishAfterImport: validatedData.publishAfterImport,
-      }
-    );
+    const importResult = await importPBQPackage(importPackage, user.id, {
+      validateOnly: validatedData.validateOnly,
+      allowOverwrite: validatedData.allowOverwrite,
+      publishAfterImport: validatedData.publishAfterImport,
+    });
 
     // Log the import attempt for auditing
     await supabase.from("pbq_import_log").insert({
@@ -173,17 +163,19 @@ export async function POST(request: NextRequest) {
         result: importResult,
       });
     } else {
-      return NextResponse.json({
-        success: false,
-        result: importResult,
-      }, { 
-        status: importResult.rollbackRequired ? 500 : 400 
-      });
+      return NextResponse.json(
+        {
+          success: false,
+          result: importResult,
+        },
+        {
+          status: importResult.rollbackRequired ? 500 : 400,
+        }
+      );
     }
-
   } catch (error) {
     console.error("PBQ import error:", error);
-    
+
     if (error instanceof Error && "statusCode" in error) {
       return NextResponse.json(
         { error: error.message },
@@ -192,9 +184,9 @@ export async function POST(request: NextRequest) {
     }
 
     return NextResponse.json(
-      { 
+      {
         error: "Internal server error during PBQ import",
-        details: error instanceof Error ? error.message : "Unknown error"
+        details: error instanceof Error ? error.message : "Unknown error",
       },
       { status: 500 }
     );
