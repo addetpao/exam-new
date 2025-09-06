@@ -20,10 +20,10 @@ export default function UnauthorizedPage() {
 
         <div className="mt-8 space-y-4">
           <p className="text-gray-700">
-            If you believe this is an error, please contact your administrator 
+            If you believe this is an error, please contact your administrator
             or try signing in with a different account.
           </p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               href="/dashboard"
@@ -31,7 +31,7 @@ export default function UnauthorizedPage() {
             >
               Go to Dashboard
             </Link>
-            
+
             <Link
               href="/auth/signin"
               className="inline-flex items-center justify-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
