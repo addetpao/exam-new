@@ -31,6 +31,7 @@
 ## Technical Specifications
 
 ### Table Structure
+
 ```sql
 CREATE TABLE public.users (
     id UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
@@ -47,6 +48,7 @@ CREATE TABLE public.users (
 ```
 
 ### Performance Optimization
+
 - **Primary Index**: `id` (UUID primary key)
 - **Unique Index**: `email` for fast lookups
 - **Role Index**: `role` for RBAC queries
@@ -54,6 +56,7 @@ CREATE TABLE public.users (
 - **Composite Index**: `(role, status)` for admin dashboard queries
 
 ### Data Validation
+
 - Email regex validation
 - Name length constraints (2-100 chars)
 - URL format validation for avatars
@@ -62,17 +65,20 @@ CREATE TABLE public.users (
 ## Integration Points
 
 ### Frontend Integration
+
 - **Authentication**: Seamless with Supabase Auth
 - **Profile Management**: Complete user profile CRUD
 - **Role-Based UI**: Components adapt to user role
 - **Subscription Status**: UI reflects current subscription tier
 
-### Backend Integration  
+### Backend Integration
+
 - **API Routes**: User profile endpoints ready
 - **Middleware**: Role-based route protection planned
 - **Business Logic**: Subscription enforcement hooks ready
 
 ### Security Integration
+
 - **RLS Policies**: Framework designed for DB-006 implementation
 - **Data Protection**: No sensitive auth data stored
 - **Audit Trail**: All changes tracked via timestamps
@@ -116,21 +122,25 @@ CREATE TABLE public.users (
 ## Agent Coordination Notes
 
 ### For Authentication Agent (AUTH-001, AUTH-002)
+
 - User table schema ready for role-based access control
 - Integration points with Supabase Auth documented
 - Role enum supports planned RBAC hierarchy
 
-### For Frontend Agent (FE-*)  
+### For Frontend Agent (FE-\*)
+
 - User profile data structure defined
 - Role-based component rendering supported
 - Subscription status integration planned
 
-### For Backend Agent (API-*)
+### For Backend Agent (API-\*)
+
 - API endpoint schemas can reference user table structure
 - Business logic hooks identified for subscription management
 - Error handling patterns documented
 
-### For Security Agent (SEC-*, DB-006)
+### For Security Agent (SEC-\*, DB-006)
+
 - RLS policy framework designed and documented
 - Security considerations identified and addressed
 - Access patterns defined for different user roles
