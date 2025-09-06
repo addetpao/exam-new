@@ -1,6 +1,14 @@
 import { NextRequest } from "next/server";
-import { createSuccessResponse, createErrorResponse, handleAPIError, validateMethod } from "@/lib/server/utils/api-response";
-import { getAuthenticatedUser, createSupabaseAdmin } from "@/lib/server/db/supabase";
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  handleAPIError,
+  validateMethod,
+} from "@/lib/server/utils/api-response";
+import {
+  getAuthenticatedUser,
+  createSupabaseAdmin,
+} from "@/lib/server/db/supabase";
 import { ExamSessionCreateSchema } from "@/lib/server/validation/schemas";
 import { ga4Analytics } from "@/lib/server/analytics/ga4";
 
@@ -11,11 +19,19 @@ const EXAM_CONFIG = {
   "1101": {
     name: "CompTIA A+ Core 1 (220-1101)",
     domains: {
-      "mobile_devices": { weight: 0.15, min_questions: 13, max_questions: 18 },
-      "networking": { weight: 0.20, min_questions: 18, max_questions: 22 },
-      "hardware": { weight: 0.25, min_questions: 23, max_questions: 27 },
-      "virtualization_cloud": { weight: 0.11, min_questions: 10, max_questions: 12 },
-      "hardware_network_troubleshooting": { weight: 0.29, min_questions: 26, max_questions: 30 }
+      mobile_devices: { weight: 0.15, min_questions: 13, max_questions: 18 },
+      networking: { weight: 0.2, min_questions: 18, max_questions: 22 },
+      hardware: { weight: 0.25, min_questions: 23, max_questions: 27 },
+      virtualization_cloud: {
+        weight: 0.11,
+        min_questions: 10,
+        max_questions: 12,
+      },
+      hardware_network_troubleshooting: {
+        weight: 0.29,
+        min_questions: 26,
+        max_questions: 30,
+      },
     },
     total_questions: 90,
     passing_score: 675,
@@ -24,15 +40,23 @@ const EXAM_CONFIG = {
   "1102": {
     name: "CompTIA A+ Core 2 (220-1102)",
     domains: {
-      "operating_systems": { weight: 0.31, min_questions: 28, max_questions: 34 },
-      "security": { weight: 0.25, min_questions: 23, max_questions: 27 },
-      "software_troubleshooting": { weight: 0.22, min_questions: 20, max_questions: 24 },
-      "operational_procedures": { weight: 0.22, min_questions: 20, max_questions: 24 }
+      operating_systems: { weight: 0.31, min_questions: 28, max_questions: 34 },
+      security: { weight: 0.25, min_questions: 23, max_questions: 27 },
+      software_troubleshooting: {
+        weight: 0.22,
+        min_questions: 20,
+        max_questions: 24,
+      },
+      operational_procedures: {
+        weight: 0.22,
+        min_questions: 20,
+        max_questions: 24,
+      },
     },
     total_questions: 90,
     passing_score: 700,
     time_limit: 90 * 60, // 90 minutes in seconds
-  }
+  },
 };
 
 /**
@@ -45,7 +69,7 @@ export async function POST(request: NextRequest) {
     if (methodError) return methodError;
 
     const user = await getAuthenticatedUser();
-    
+
     const body = await request.json();
     const validatedData = ExamSessionCreateSchema.parse(body);
 
@@ -59,13 +83,14 @@ export async function POST(request: NextRequest) {
       .single();
 
     // Check if user has access to exam mode
-    const hasExamAccess = userProfile?.subscription_status === "premium" || 
-      userProfile?.subscription_status === "trial" || 
+    const hasExamAccess =
+      userProfile?.subscription_status === "premium" ||
+      userProfile?.subscription_status === "trial" ||
       userProfile?.role === "admin";
 
     if (!hasExamAccess) {
       return createErrorResponse(
-        "SUBSCRIPTION_REQUIRED", 
+        "SUBSCRIPTION_REQUIRED",
         "Premium subscription required for exam mode",
         null,
         402
@@ -96,7 +121,8 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const examConfig = EXAM_CONFIG[validatedData.exam_type as keyof typeof EXAM_CONFIG];
+    const examConfig =
+      EXAM_CONFIG[validatedData.exam_type as keyof typeof EXAM_CONFIG];
     if (!examConfig) {
       return createErrorResponse("BAD_REQUEST", "Invalid exam type", null, 400);
     }
@@ -118,12 +144,17 @@ export async function POST(request: NextRequest) {
 
     if (sessionError) {
       console.error("Failed to create exam session:", sessionError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to create exam session", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to create exam session",
+        null,
+        500
+      );
     }
 
     // Get domain-weighted question distribution
     const selectedQuestions: any[] = [];
-    
+
     for (const [domainCode, config] of Object.entries(examConfig.domains)) {
       // Get domain ID
       const { data: domain } = await supabase
@@ -143,7 +174,8 @@ export async function POST(request: NextRequest) {
       // Get questions for this domain
       const { data: domainQuestions } = await supabase
         .from("questions")
-        .select(`
+        .select(
+          `
           id,
           question_text,
           question_type,
@@ -155,7 +187,8 @@ export async function POST(request: NextRequest) {
             id,
             choice_text
           )
-        `)
+        `
+        )
         .eq("domain_id", domain.id)
         .eq("status", "published")
         .limit(questionCount * 2); // Get extra for randomization
@@ -168,11 +201,13 @@ export async function POST(request: NextRequest) {
     }
 
     // Fill remaining slots if needed
-    const remainingSlots = examConfig.total_questions - selectedQuestions.length;
+    const remainingSlots =
+      examConfig.total_questions - selectedQuestions.length;
     if (remainingSlots > 0) {
       const { data: additionalQuestions } = await supabase
         .from("questions")
-        .select(`
+        .select(
+          `
           id,
           question_text,
           question_type,
@@ -184,10 +219,11 @@ export async function POST(request: NextRequest) {
             id,
             choice_text
           )
-        `)
+        `
+        )
         .eq("exam_type", validatedData.exam_type)
         .eq("status", "published")
-        .not("id", "in", `(${selectedQuestions.map(q => q.id).join(",")})`)
+        .not("id", "in", `(${selectedQuestions.map((q) => q.id).join(",")})`)
         .limit(remainingSlots);
 
       if (additionalQuestions) {
@@ -211,19 +247,26 @@ export async function POST(request: NextRequest) {
 
     if (questionsError) {
       console.error("Failed to store exam questions:", questionsError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to prepare exam questions", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to prepare exam questions",
+        null,
+        500
+      );
     }
 
     // Track analytics
-    await ga4Analytics.trackEvent(user.id, [{
-      name: "exam_session_started",
-      parameters: {
-        session_id: session.id,
-        exam_type: validatedData.exam_type,
-        total_questions: examConfig.total_questions,
-        time_limit_minutes: examConfig.time_limit / 60,
-      }
-    }]);
+    await ga4Analytics.trackEvent(user.id, [
+      {
+        name: "exam_session_started",
+        parameters: {
+          session_id: session.id,
+          exam_type: validatedData.exam_type,
+          total_questions: examConfig.total_questions,
+          time_limit_minutes: examConfig.time_limit / 60,
+        },
+      },
+    ]);
 
     const responseData = {
       session: {
@@ -237,23 +280,25 @@ export async function POST(request: NextRequest) {
         status: session.status,
       },
       // Return first question only - subsequent questions fetched individually
-      current_question: finalQuestions[0] ? {
-        id: finalQuestions[0].id,
-        question_number: 1,
-        question_text: finalQuestions[0].question_text,
-        question_type: finalQuestions[0].question_type,
-        domain_id: finalQuestions[0].domain_id,
-        objective_id: finalQuestions[0].objective_id,
-        pbq_config: finalQuestions[0].pbq_config,
-        choices: finalQuestions[0].choices?.map((choice: any) => ({
-          id: choice.id,
-          choice_text: choice.choice_text,
-        })) || [],
-      } : null,
+      current_question: finalQuestions[0]
+        ? {
+            id: finalQuestions[0].id,
+            question_number: 1,
+            question_text: finalQuestions[0].question_text,
+            question_type: finalQuestions[0].question_type,
+            domain_id: finalQuestions[0].domain_id,
+            objective_id: finalQuestions[0].objective_id,
+            pbq_config: finalQuestions[0].pbq_config,
+            choices:
+              finalQuestions[0].choices?.map((choice: any) => ({
+                id: choice.id,
+                choice_text: choice.choice_text,
+              })) || [],
+          }
+        : null,
     };
 
     return createSuccessResponse(responseData, 201);
-
   } catch (error) {
     return handleAPIError(error);
   }
@@ -268,7 +313,7 @@ export async function GET(request: NextRequest) {
     if (methodError) return methodError;
 
     const user = await getAuthenticatedUser();
-    
+
     const { searchParams } = new URL(request.url);
     const limit = Math.min(parseInt(searchParams.get("limit") || "20"), 100);
     const offset = parseInt(searchParams.get("offset") || "0");
@@ -279,7 +324,8 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from("exam_sessions")
-      .select(`
+      .select(
+        `
         id,
         exam_type,
         status,
@@ -291,7 +337,8 @@ export async function GET(request: NextRequest) {
         completed_at,
         time_limit,
         passing_score
-      `)
+      `
+      )
       .eq("user_id", user.id)
       .order("started_at", { ascending: false });
 
@@ -303,19 +350,28 @@ export async function GET(request: NextRequest) {
       query = query.eq("exam_type", examType);
     }
 
-    const { data: sessions, error: sessionsError } = await query
-      .range(offset, offset + limit - 1);
+    const { data: sessions, error: sessionsError } = await query.range(
+      offset,
+      offset + limit - 1
+    );
 
     if (sessionsError) {
       console.error("Failed to fetch exam sessions:", sessionsError);
-      return createErrorResponse("INTERNAL_ERROR", "Failed to fetch exam sessions", null, 500);
+      return createErrorResponse(
+        "INTERNAL_ERROR",
+        "Failed to fetch exam sessions",
+        null,
+        500
+      );
     }
 
     const responseData = {
-      sessions: sessions?.map(session => ({
-        ...session,
-        exam_name: EXAM_CONFIG[session.exam_type as keyof typeof EXAM_CONFIG]?.name,
-      })) || [],
+      sessions:
+        sessions?.map((session) => ({
+          ...session,
+          exam_name:
+            EXAM_CONFIG[session.exam_type as keyof typeof EXAM_CONFIG]?.name,
+        })) || [],
       pagination: {
         limit,
         offset,
@@ -324,7 +380,6 @@ export async function GET(request: NextRequest) {
     };
 
     return createSuccessResponse(responseData);
-
   } catch (error) {
     return handleAPIError(error);
   }
