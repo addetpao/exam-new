@@ -3,6 +3,11 @@
   <Title>claude.md</Title>
   <Description>Comprehensive guidance for contributors working on the ExamPrep Platform (CompTIA A+).</Description>
 
+  <Section title="Critical Global Rules - READ FIRST">
+    <Rule priority="HIGHEST">DO NOT ASSUME. ASK. If any requirement, variable name, file path, configuration, or implementation detail is unclear or ambiguous, ALWAYS ask for clarification rather than making assumptions.</Rule>
+    <Rule priority="CRITICAL">Variable Name Verification: Before accessing, using, or writing any variable, environment variable, configuration key, or property name, DOUBLE-CHECK the exact spelling, casing, and format. Verify against existing code, configuration files, and documentation. One character difference can break entire systems.</Rule>
+  </Section>
+
   <Section title="Core Development Philosophy">
     <Point>Lean &amp; Incremental: Build MVP quickly with essential features, then expand in phases.</Point>
     <Point>Quality-first: Prioritize exam fidelity and teaching quality over speed.</Point>
