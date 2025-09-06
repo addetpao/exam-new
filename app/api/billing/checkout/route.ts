@@ -1,6 +1,10 @@
 import { NextRequest } from "next/server";
 import { z } from "zod";
-import { createSuccessResponse, createErrorResponse, handleAPIError } from "@/lib/server/utils/api-response";
+import {
+  createSuccessResponse,
+  createErrorResponse,
+  handleAPIError,
+} from "@/lib/server/utils/api-response";
 import { requireAuth } from "@/lib/auth/guard";
 import { createCheckoutSession, isValidPriceId } from "@/lib/stripe";
 
@@ -10,7 +14,7 @@ const checkoutRequestSchema = z.object({
   successUrl: z.string().url("Valid success URL is required"),
   cancelUrl: z.string().url("Valid cancel URL is required"),
   trialPeriodDays: z.number().min(0).max(30).optional(),
-  metadata: z.record(z.string()).optional(),
+  metadata: z.record(z.string(), z.string()).optional(),
 });
 
 /**
@@ -22,27 +26,38 @@ export async function POST(request: NextRequest) {
     // Require authentication
     const authResult = await requireAuth(request);
     if (!authResult.success || !authResult.user) {
-      return createErrorResponse("UNAUTHORIZED", "Authentication required", null, 401);
+      return createErrorResponse(
+        "UNAUTHORIZED",
+        "Authentication required",
+        null,
+        401
+      );
     }
 
     // Parse and validate request body
     const body = await request.json();
     const validation = checkoutRequestSchema.safeParse(body);
-    
+
     if (!validation.success) {
       return createErrorResponse(
-        "BAD_REQUEST", 
-        "Invalid request data", 
-        validation.error.errors, 
+        "BAD_REQUEST",
+        "Invalid request data",
+        validation.error.issues,
         400
       );
     }
 
-    const { priceId, successUrl, cancelUrl, trialPeriodDays, metadata } = validation.data;
+    const { priceId, successUrl, cancelUrl, trialPeriodDays, metadata } =
+      validation.data;
 
     // Validate price ID
     if (!isValidPriceId(priceId)) {
-      return createErrorResponse("BAD_REQUEST", "Invalid price ID", { priceId }, 400);
+      return createErrorResponse(
+        "BAD_REQUEST",
+        "Invalid price ID",
+        { priceId },
+        400
+      );
     }
 
     // Create user profile for Stripe
@@ -69,7 +84,6 @@ export async function POST(request: NextRequest) {
       checkoutUrl,
       expiresAt: new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString(), // 24 hours
     });
-
   } catch (error) {
     console.error("Checkout session creation error:", error);
     return handleAPIError(error);
@@ -78,13 +92,28 @@ export async function POST(request: NextRequest) {
 
 // Only allow POST requests
 export async function GET() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "GET method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "GET method not allowed",
+    null,
+    405
+  );
 }
 
 export async function PUT() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "PUT method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "PUT method not allowed",
+    null,
+    405
+  );
 }
 
 export async function DELETE() {
-  return createErrorResponse("METHOD_NOT_ALLOWED", "DELETE method not allowed", null, 405);
+  return createErrorResponse(
+    "METHOD_NOT_ALLOWED",
+    "DELETE method not allowed",
+    null,
+    405
+  );
 }
