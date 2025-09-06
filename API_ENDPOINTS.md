@@ -3,30 +3,40 @@
 This document provides an overview of the implemented API endpoints for the ExamPrep platform.
 
 ## Base URL
+
 - Development: `http://localhost:3003`
 - Production: `https://your-domain.com`
 
 ## Authentication
+
 Most endpoints require authentication via Supabase session cookies. The session is managed by Next.js middleware.
 
 ## Common Response Format
+
 All API responses follow this standardized format:
 
 ```json
 {
-  "data": { /* Response data */ },
-  "error": { /* Error details if applicable */ },
+  "data": {
+    /* Response data */
+  },
+  "error": {
+    /* Error details if applicable */
+  },
   "timestamp": "2025-09-05T04:56:32.791Z"
 }
 ```
 
 ## Error Response Format
+
 ```json
 {
   "error": {
     "code": "ERROR_CODE",
     "message": "Human readable error message",
-    "details": { /* Additional error context */ }
+    "details": {
+      /* Additional error context */
+    }
   },
   "timestamp": "2025-09-05T04:56:32.791Z"
 }
@@ -37,9 +47,11 @@ All API responses follow this standardized format:
 ### Health Check
 
 #### GET /api/health
+
 Check system health and service status.
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -59,11 +71,13 @@ Check system health and service status.
 ### Authentication
 
 #### GET /api/auth/session
+
 Get current user session and profile information.
 
 **Requires:** Valid session cookie
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -81,6 +95,7 @@ Get current user session and profile information.
 ```
 
 #### POST /api/auth/session
+
 Refresh user session and return updated profile.
 
 **Requires:** Valid session cookie
@@ -88,9 +103,11 @@ Refresh user session and return updated profile.
 ### Practice Mode
 
 #### POST /api/practice
+
 Create a new practice session with adaptive question selection.
 
 **Body:**
+
 ```json
 {
   "domain_id": "uuid", // Optional - specific domain
@@ -101,6 +118,7 @@ Create a new practice session with adaptive question selection.
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -132,20 +150,25 @@ Create a new practice session with adaptive question selection.
 ```
 
 #### GET /api/practice
+
 List user's practice sessions with pagination.
 
 **Query Parameters:**
+
 - `limit`: Number of results (1-100, default 20)
 - `offset`: Pagination offset (default 0)
 - `status`: Filter by status ("active" | "completed")
 
 #### GET /api/practice/[sessionId]
+
 Get practice session details and results.
 
 #### PUT /api/practice/[sessionId]
+
 Submit answers or complete practice session.
 
 **Body for answer submission:**
+
 ```json
 {
   "action": "submit_answer",
@@ -156,6 +179,7 @@ Submit answers or complete practice session.
 ```
 
 **Body for session completion:**
+
 ```json
 {
   "action": "complete_session"
@@ -163,16 +187,19 @@ Submit answers or complete practice session.
 ```
 
 #### DELETE /api/practice/[sessionId]
+
 Cancel/delete an active practice session.
 
 ### Exam Mode
 
 #### POST /api/exam
+
 Create a new exam session with domain-weighted question distribution.
 
 **Requires:** Premium subscription or trial
 
 **Body:**
+
 ```json
 {
   "exam_type": "1101" | "1102" | "combined"
@@ -180,6 +207,7 @@ Create a new exam session with domain-weighted question distribution.
 ```
 
 **Response:**
+
 ```json
 {
   "data": {
@@ -200,16 +228,20 @@ Create a new exam session with domain-weighted question distribution.
       "question_type": "multiple_choice",
       "domain_id": "uuid",
       "objective_id": "uuid",
-      "choices": [/* ... */]
+      "choices": [
+        /* ... */
+      ]
     }
   }
 }
 ```
 
 #### GET /api/exam
+
 List user's exam sessions with filtering options.
 
 **Query Parameters:**
+
 - `limit`: Number of results (1-100, default 20)
 - `offset`: Pagination offset (default 0)
 - `status`: Filter by status
@@ -218,12 +250,15 @@ List user's exam sessions with filtering options.
 ### Webhooks
 
 #### POST /api/webhooks/stripe
+
 Handle Stripe webhook events for subscription management.
 
 **Headers Required:**
+
 - `stripe-signature`: Stripe webhook signature
 
 **Handles Events:**
+
 - `customer.subscription.created`
 - `customer.subscription.updated`
 - `customer.subscription.deleted`
@@ -234,9 +269,11 @@ Handle Stripe webhook events for subscription management.
 ## Business Logic
 
 ### Domain Weighting (Exam Mode)
+
 The exam questions are distributed according to CompTIA A+ blueprint:
 
 **220-1101 (Core 1):**
+
 - Mobile Devices: 15% (13-18 questions)
 - Networking: 20% (18-22 questions)
 - Hardware: 25% (23-27 questions)
@@ -244,18 +281,21 @@ The exam questions are distributed according to CompTIA A+ blueprint:
 - Hardware & Network Troubleshooting: 29% (26-30 questions)
 
 **220-1102 (Core 2):**
+
 - Operating Systems: 31% (28-34 questions)
 - Security: 25% (23-27 questions)
 - Software Troubleshooting: 22% (20-24 questions)
 - Operational Procedures: 22% (20-24 questions)
 
 ### Subscription Limits
+
 - **Free:** Practice mode only, max 50 questions per session
 - **Trial:** Full access for trial period
 - **Premium Basic:** 5 exam attempts per 30 days
 - **Premium Plus:** 30 exam attempts per 30 days
 
 ### Scoring
+
 - Exam scoring uses scaled range (100-900)
 - Practice mode shows percentage accuracy
 - Analytics events track performance for GA4
